@@ -41,9 +41,11 @@ var StringQuery = {
 	//Attribute and Function "Constants"
 	attributes: ['href', 'class'],
 	properties: ['checked', 'selected', 'nodeType'],
-	functionsVoid: ['hide', 'show'],
-	functionsSingle: ['addClass', 'after', 'append', 'appendTo', 'before', 'detach', 'empty', 'fadeIn', 'fadeOut', 'height', 'html', 'insertAfter', 'insertBefore', 'prepend', 'prependTo', 'remove', 'removeAttr', 'removeClass', 'removeData', 'removeProp', 'replaceWidth', 'scrollLeft', 'scrollTop', 'text', 'toggleClass', 'unwrap', 'val',  'width', 'wrap', 'wrapAll', 'wrapInner'],
-	functionsMulti: ['animate', 'attr', 'fadeTo', 'prop'],
+	functions: {
+		noArg: ['hide', 'show'],
+		oneArg: ['addClass', 'after', 'append', 'appendTo', 'before', 'detach', 'empty', 'fadeIn', 'fadeOut', 'height', 'html', 'insertAfter', 'insertBefore', 'prepend', 'prependTo', 'remove', 'removeAttr', 'removeClass', 'removeData', 'removeProp', 'replaceWidth', 'scrollLeft', 'scrollTop', 'text', 'toggleClass', 'unwrap', 'val',  'width', 'wrap', 'wrapAll', 'wrapInner'],
+		multiArg: ['animate', 'attr', 'fadeTo', 'prop']
+	},
 
 	//Utility functions
 	in_array: function(n, h){
@@ -160,7 +162,7 @@ var StringQuery = {
 							e = jQuery(t);
 							if(e.length > 0){
 								for(p in c[t]){ // p = property
-									m.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+c[t][p]+'"');
+									m.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+i[t][p]+'"');
 									m.process(p, i[t][p], e);
 								}
 							}else{
@@ -211,15 +213,15 @@ var StringQuery = {
 			//Updating a registered property
 			m.log(p+' is a registered property, editing via jQuery.fn.prop');
 			e.prop(p, v);
-		}else if(m.in_array(p, m.functionsVoid)){
+		}else if(m.in_array(p, m.functions.noArg)){
 			//Updating a registered jQuery function
 			m.log(p+' is a registered void function, calling function directly');
 			e[p]();
-		}else if(m.in_array(p, m.functionsSingle)){
+		}else if(m.in_array(p, m.functions.oneArg){
 			//Updating a registered jQuery function
 			m.log(p+' is a registered single argument function, calling function directly');
 			e[p](v);
-		}else if(m.in_array(p, m.functionsMulti)){
+		}else if(m.in_array(p, m.functions.multiArg)){
 			//Updating a registered multi argument jQuery function
 			//(value is assumed to be array of arguments)
 			m.log(p+' is a registered multi argument function, calling function through apply');
@@ -234,7 +236,9 @@ var StringQuery = {
 				m.utilities[f](p, v, e, m);
 			}else{
 				m.log(p+' is assumed to be a DOM property, editing directly');
-				e.get(0)[p] = v;
+				e.each(function(){
+					this[p] = v;
+				});
 			}
 		}
 	},
