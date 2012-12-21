@@ -170,6 +170,7 @@ When the data is processed on the server, StringQuery will expect some kind of J
 #### Processing the Data
 
 Assuming we get JSON back, StringQuery will proceed to do the following:
+
 1. Reset the number of resend tries (if any were made before getting a response)
 2. Make sure response is JSON, otherwise log and retry
 3. Enable/Disable verbose mode based on response.v's value
