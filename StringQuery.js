@@ -139,7 +139,7 @@ var StringQuery = {
 				}
 
 				//Process instructions if present
-				if(response.i !== undefined){
+				if(response.i !== undefined && typeof response.i == 'object'){
 					var i, t, e, p;
 						i = response.i;
 					m.log('Procession Changes');
@@ -188,7 +188,6 @@ var StringQuery = {
 				m.log('Server Execution Time: '+response.t+'ms');
 			},
 			error: function(jqXHR, textStatus, errorThrown){
-				end = (new Date()).getTime();
 				m.log(jqXHR, true);
 				m.retry(action, data);
 			}
