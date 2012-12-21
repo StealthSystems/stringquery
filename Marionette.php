@@ -30,12 +30,12 @@
 	These instructions are then sent back in the form of a JSON object,
 	which is composed of the following:
 	{
-		u: <update interval>
+		i: <instrution data>
 		r: <repeat boolean>
-		l: <verbose boolean>
+		u: <update interval>
 		k: <session key>
-		c: <instrution data>
 		t: <execution time>
+		v: <verbose boolean>
 	}
 
 	update interval =	How long for the JS class to wait before sending
@@ -173,12 +173,12 @@ class Marionette
 
 		//Print out the JSON data
 		echo json_encode(array(
-			'u' => $this->update_interval + $this->min_update_interval,
+			'i' => $data,
 			'r' => $this->repeat,
-			'l' => $this->verbose,
+			'u' => $this->update_interval + $this->min_update_interval,
 			'k' => $this->key,
-			'c' => $data,
-			't' => round(microtime(true) - $this->start, 4)
+			't' => round(microtime(true) - $this->start, 4),
+			'v' => $this->verbose
 		));
 
 		exit; //Adding anything after the JSON will break it.
@@ -205,12 +205,7 @@ class Marionette
 	}
 
 	// Update a specific property
-	function updateProp($target, $prop, $value, $force = null, $bool = false){
-		if($bool){ //property must be TRUE or FALSE
-			if($value == 1) $value = true;
-			else $value = false;
-		}
-
+	function updateProp($target, $prop, $value, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
@@ -230,7 +225,7 @@ class Marionette
 	}
 
 	// Call a predefined numeric parser
-	function call($key, $data, $force = null){
+	function call(integer $key, $data, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
