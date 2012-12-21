@@ -89,6 +89,7 @@ class StringQuery
 	public $data = array(); //For collecting multiple replies to send
 	public $force = array(); //For forcing changes on any targets logged here.
 	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
+	public $session_lifetime = 60; //How many seconds a session can last without being touched before getting deleted
 	public $start; //The start time of when StringQuery was initialized
 	public $key; //The session entry key that holds relevant StringQuery data
 	public $system_load; //Store the system load at time of running StringQuery
@@ -114,7 +115,7 @@ class StringQuery
 	function clean_session(){
 		//Run through all sessions and see if any are older than 60 seconds, delete if so
 		foreach($_SESSION['StringQuery'] as $key => $session){
-			if($key != $this->key && isset($session['touched']) && time() - $session['touched'] > 60)
+			if($key != $this->key && isset($session['touched']) && time() - $session['touched'] > $this->session_lifetime)
 				unset($_SESSION['StringQuery'][$key]);
 		}
 	}
