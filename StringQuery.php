@@ -14,22 +14,22 @@ For conditions of distribution and use, see copyright notice in LICENSE
  * Instructions are sent in this basic structure:
  * {
  * 		target: {
- * 			property: value
+ * 			prop: value
  * 		}
  * }
  *
- * target =	a jQuery selector (to directly edit an element)
+ * target:	a jQuery selector (to directly edit an element)
  * 			or a number to call a predefined parser function
  * 			within the JS class.
- * 			(set via StringQuery.parsers[N] = function(){//do something})
+ * 			(set via StringQuery.parsers[@NAME] = function(){//do something})
  *
- * property =	a DOM property or attribute to manipulate through
+ * prop:	a DOM property or attribute to manipulate through
  * 			jQuery or directly through the DOM object. This can
  * 			also be the name of a jQuery function such as addClass,
  * 			or a predefined parser function.
  * 			(set via StringQuery.parsers.X = function(){//do something})
  *
- * value =		mixed data, such as a boolean, a string, or an object.
+ * value:	mixed data, such as a boolean, a string, or an object.
  * 			For jQuery functions that take multiple arguments, pass
  * 			an array of the arguments.
  * 			(set via StringQuery.functions[Single|Multi].X = function(){//do something})
@@ -136,7 +136,7 @@ class StringQuery
 		if(isset($_REQUEST['StringQuery'])){
 			header('HTTP/1.0 200 OK');
 			//If no action is actually passed, send log to the browser
-			if(!isset($_REQUEST['StringQuery']['action'])) $this->sendData(0, "No action specified", true, false);
+			if(!isset($_REQUEST['StringQuery']['action'])) $this->call('log', "No action specified", true, false);
 
 			$action = $_REQUEST['StringQuery']['action'];
 
@@ -155,7 +155,7 @@ class StringQuery
 				//call_user_func($this->actions['default'], &$this, $data, $action);
 			}else{
 				//Dammit, nothing, send a log to the browser
-				$this->call(0, "Unrecognized action: $action, no default function set.", true);
+				$this->call('log', "Unrecognized action: $action, no default function set.", true);
 			}
 			$this->reply();
 		}
@@ -235,16 +235,18 @@ class StringQuery
 		}
 	}
 
-	// Call a predefined numeric parser
-	function call(integer $key, $data, $force = null){
+	// Call a StringQuery.parsers function
+	function call($func, $data, $force = null){
+		$func = "@$func";
+
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
         if($force) //Add target to list of forced changes
-            $this->force[] = $key;
+            $this->force[] = $func;
 
 		//Add it to the $data array
-		$this->data[$key] = $data;
+		$this->data[$func] = $data;
 	}
 
 	// Update multiple targets in one go
