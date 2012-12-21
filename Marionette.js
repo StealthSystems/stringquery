@@ -113,8 +113,8 @@ var Marionette = {
 					m.tries = 0;
 				}
 
-				if(response !== null && response.l !== undefined)
-					m.logging = response.l;
+				if(response !== null && response.v !== undefined)
+					m.logging = response.v;
 
 				if(!response || typeof response != 'object'){
 					m.log('Data returned is not JSON',true);
@@ -131,18 +131,19 @@ var Marionette = {
 					m.sessionKey = response.k;
 				}
 
-				if(response.c !== undefined){
-					var c, t, e, p;
-						c = response.c;
+				//Process instructions if present
+				if(response.i !== undefined){
+					var i, t, e, p;
+						i = response.i;
 					m.log('Procession Changes');
-					for(t in c){ // t = target
+					for(t in i){ // t = target
 						m.log('Begin Processing '+t);
 
 						if(t.match(/^\d+jQuery/)){
 							//Data is being sent to a predefined "mode" function
 							m.log(t+' is numeric, calling custom parser function matching that ID with the following data: "'+c[t]+'"');
 							if(typeof m.parsers[t] == 'function'){//Make sure the function exists
-								m.parsers[t](c[t], t);
+								m.parsers[t](i[t], t);
 							}else{
 								m.log('No function at parsers['+t+'] exists');
 							}
@@ -152,7 +153,7 @@ var Marionette = {
 							if(e.length > 0){
 								for(p in c[t]){ // p = property
 									m.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+c[t][p]+'"');
-									m.process(p, c[t][p], e);
+									m.process(p, i[t][p], e);
 								}
 							}else{
 								m.log('No elements matching "'+t+'" were found.');
@@ -161,6 +162,7 @@ var Marionette = {
 					}
 				}
 
+				//Repeat action if needed and if an interval is present
 				if(response.u !== undefined && response.r === true){
 					m.log('Interval set and repeat is true, setting timeout to repeat "'+action+'" action to "'+m.script+'"');
 
