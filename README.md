@@ -58,6 +58,17 @@ Just pass an array of configurations, including an array of actions in action =>
 - $actions
   - An array of action values and the name of the function to run (must be a function name; other callback types not yet supported. See Bugs & Limitations for details
 
+#### Construction Process
+
+When constructed, StringQuery goes through the following steps:
+1. Log the start time
+2. Create or load the session key
+3. Clean out any old sessions (nothing touched in 60 seconds by default)
+4. Determin the server load and adjust the $update_interval property accordingly
+5. Load the passed arguments array values into it's properties
+6. Process the StringQuery data recieved, calling the function associated with the action if it exists
+7. Reply back with the JSON instructions and exit
+
 ### Writing Action Functions
 
 Action functions will be called with the following arguments (in order):
@@ -101,7 +112,7 @@ Here are the 4 built in methods:
 
 #### call(integer $key, $data, $force = null)
 
-    $SQ->call(1, 'Hi there!');
+    $SQ->call('@alert', 'Hi there!');
 
 Note: this works very similarly to update, however it will overwrite any preexisting entries in the instructions for the desired target rather than appending the data (this is because they're intended to only be called once per set)
 
@@ -112,7 +123,7 @@ Note: this works very similarly to update, however it will overwrite any preexis
             'innerHTML' => 'Hey, I changed!',
             'addClass' => 'changed'
         ),
-        1 => 'Hi there?'
+        '@alert' => 'Hi there?'
     ));
 
 Once that's all done, StringQuery will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
@@ -127,5 +138,46 @@ This is going to be brief, since honestly it's the same as extending any other P
 
 It's advised you use one of the builtin methods as an inbetween, since it's less likely to break if the actual system is reworked.
 
-___________
-Documentation in progress... need to rename the damn thing now apparently anyway.
+StringQuery.js
+--------------
+
+The JavaScript object sends action/data information to the server, and processes the instructions. All that's needed for basic setup is to call this function:
+
+    StringQuery.init('/ajax.php');
+
+This will set the StringQuery.script variable (the URL of the script to send all data to), and send the action 'ping' to the server, as well as any data you decide to pass in the second argument.
+
+### Sending data
+
+To send an action name and associated data to the server, and process the resulting instructions, simply call the sendData function:
+
+    StringQuery.sendData('dostuff', 'with this');
+
+StringQuery will build the request to make to the server:
+
+    request = {
+        action: 'dostuff',
+        k: '9bf544bd1b7704bdefc7be441d9a21585848a32707deee946010f2ee7b776eea',
+        data: 'with this'
+    }
+    
+Note: k is the StringQuery session key, the MD5 of the clients IP address and the unix timestamp concated together. This is used to log previously sent instructions, to prevent bloating of the returned JSON.
+
+### Receiving Data
+
+When the data is processed on the server, StringQuery will expect some kind of JSON formatted response, described earlier.
+
+#### Processing the Data
+
+Assuming we get JSON back, StringQuery will proceed to do the following:
+1. Reset the number of resend tries (if any were made before getting a response)
+2. Make sure response is JSON, otherwise log and retry
+3. Enable/Disable verbose mode based on response.v's value
+4. Log data returned if in verbose mode
+5. Store the key supplied by the server (will be the same key sent if there was one normally)
+6. Process the instructions if they are provided
+7. Setup to send to the server again if response.r (repeat) is true and response.u (update interval) is set
+    - Note: if no update interval is set or repeat is not true, and if the action is 'ping', it will re-ping the server in 1 minute.
+8. Log client & server execution time if in verbose mode
+
+If there is an error with the request, StringQuery will log the error and retry until it succeeds, with the retry interval increasing every time.
