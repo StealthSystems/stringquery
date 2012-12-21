@@ -74,7 +74,7 @@ var StringQuery = {
 	},
 
 	//Retry Function
-	retry: function(action, data, skipLogging){
+	retry: function(action, data){
 		for(var p in StringQuery.timeouts){
 			clearTimeout(StringQuery.timeouts[p]);
 		}
@@ -82,12 +82,12 @@ var StringQuery = {
 		StringQuery.tries++;
 		this.log('Error connecting, retry number '+StringQuery.tries, true);
 		StringQuery.timeouts[action] = setTimeout(function(){
-			StringQuery.sendData(action, data, skipLogging);
+			StringQuery.sendData(action, data);
 		}, StringQuery.retryPace * (Math.floor(StringQuery.tries / 10) + 1));
 	},
 
 	//The send data function
-	sendData: function(action, data, skipLogging){
+	sendData: function(action, data){
 		var m = this;
 		var jQuery = jQuery;
 
@@ -126,7 +126,7 @@ var StringQuery = {
 				if(!response || typeof response != 'object'){
 					m.log('Data returned is not JSON',true);
 					m.log(response, true);
-					m.retry(action, data, skipLogging);
+					m.retry(action, data);
 					return;
 				}
 
@@ -174,12 +174,12 @@ var StringQuery = {
 					m.log('Interval set and repeat is true, setting timeout to repeat "'+action+'" action to "'+m.script+'"');
 
 					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data, skipLogging);
+						m.sendData(action, data);
 					}, response.u);
 				}else if(action == 'ping'){
 					//Reping the server anyway in 1 minute, just in case
 					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data, skipLogging);
+						m.sendData(action, data);
 					}, 60000);
 				}
 
@@ -189,7 +189,7 @@ var StringQuery = {
 			error: function(jqXHR, textStatus, errorThrown){
 				end = (new Date()).getTime();
 				m.log(jqXHR, true);
-				m.retry(action, data, skipLogging);
+				m.retry(action, data);
 			}
 		});
 	},
