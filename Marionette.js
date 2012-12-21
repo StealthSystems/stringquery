@@ -1,3 +1,10 @@
+/*
+Built with Marionette (https://github.com/dougwollison/marionette/)
+
+Copyright (c) 2012 Doug Wollison & Richard Cornwell
+For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 //Make sure jQuery is defined
 if(typeof jQuery == 'function'){
 //Marionette Javascript API
