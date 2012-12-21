@@ -182,3 +182,44 @@ Assuming we get JSON back, StringQuery will proceed to do the following:
 8. Log client & server execution time if in verbose mode
 
 If there is an error with the request, StringQuery will log the error and retry until it succeeds, with the retry interval increasing every time.
+
+#### Processing the Instruction
+
+StringQuery will run through the instructions, target by target. First, it checks if the target is a special method function (prefixed with an @), or otherwise a selector of some kind (or possibly even html code).
+
+If it's a special method, it will check if the method exists within StringQuery.methods and call it, otherwise it'll log an error (again, only logged if in verbose mode).
+
+If it's a selector, it will create a jQuery object of the selector, and check if it exists based on the length. If it doesn't exist, it'll log an error in a similar way to the missing special method error.
+
+If the selector matches something in the DOM, it will procceed to rung through each propery and process it accordingly using the StringQuery.process function.
+
+##### StringQuery.process(p, v, e)
+
+This function, which takes the propery, value, and element, proceeds to make the necessary changes based on what the property is:
+
+- If it begins with 'data-' or belongs to the StringQuery.attributes list, it'll edit the attribute via jQuery.attr();
+- If it belongs to the StringQuery.properties list, it'll edit the property via jQuery.prop();
+- If it belongs to the StringQuery.functions list, it'll call/apply the the matching function based on the sublist it's in
+    - noArg functions will just be called
+    - oneArg functions will be called with the value passed to them
+    - multiArg functions will be applied with the value passed as a list of arguments
+- If not, it first checks if the property is the name of a function in StringQuery.utilities block, and calls it if so
+    - If the function doesn't exists, it'll check if it's an alias to another utility function and call that if so
+- If all else fails, it's probably a DOM property, and will edit it directly
+
+### Extending
+
+You can add your own special method functions to the StringQuery object like so:
+
+    StringQuery.methods.mymethod = function(data){
+        //do stuff
+    }
+
+And then all you need to do to call it from the server is to use the StringQuery::call method:
+
+    $SQ->call('mymethod', 'my data');
+    
+Note: if you call this through StringQuery::update or StringQuery::bulkUpdate, make sure to prefix the method name with an @, so that the JavaScript object can tell it's a method and not some kind of jQuery selector.
+
+_____
+Documentation in progres...
