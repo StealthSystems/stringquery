@@ -289,3 +289,14 @@ var Marionette = {
 		siblings: 'traverse'
 	}
 };
+
+//Setup Marionette form functionality
+if(typeof jQuery == 'function')
+jQuery(document).ready(function(){
+	$('body').on('submit', 'form.marionette', function(e){
+		e.preventDefault();
+		var action = $(this).data('action');
+		var data = $(this).serialize();
+		Marionette.sendData(action, data);
+	});
+});
