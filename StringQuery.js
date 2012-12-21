@@ -146,13 +146,14 @@ var StringQuery = {
 					for(t in i){ // t = target
 						m.log('Begin Processing '+t);
 
-						if(t.match(/^\d+jQuery/)){
+						if(t.charAt(0) == '@'){
 							//Data is being sent to a predefined "mode" function
-							m.log(t+' is numeric, calling custom parser function matching that ID with the following data: "'+c[t]+'"');
-							if(typeof m.parsers[t] == 'function'){//Make sure the function exists
-								m.parsers[t](i[t], t);
+							m.log(t+' is or @ prefixed, calling special method function matching that ID/name with the following data: "'+c[t]+'"');
+							var n = t.replace('@','');
+							if(typeof m.methods[n] == 'function'){//Make sure the function exists
+								m.methods[n](i[t], t);
 							}else{
-								m.log('No function at parsers['+t+'] exists');
+								m.log('No function at methods['+n+'] exists');
 							}
 						}else{
 							m.log(t+' is a selector, running through attribute settings');
@@ -194,11 +195,13 @@ var StringQuery = {
 		});
 	},
 
+	//Set the script address and start pinging
 	init: function(script, data){
 		if(script !== undefined) this.script = script;
 		this.sendData('ping', data);
 	},
 
+	//Process the property/value for the element
 	process: function(p, v, e){
 		var f, m = this;
 		if(p.match(/data-/) || m.in_array(p, m.attributes)){
@@ -223,13 +226,13 @@ var StringQuery = {
 			m.log(p+' is a registered multi argument function, calling function through apply');
 			jQuery.fn[p].apply(e, v);
 		}else{
-			f = m.parsers[p];
+			f = m.utilities[p];
 			if(typeof f == 'function'){
-				m.log(p+' is a custom parser function, calling directly');
-				m.parsers[p](p, v, e, m);
+				m.log(p+' is a custom utility function, calling directly');
+				m.utilities[p](p, v, e, m);
 			}else if(typeof m.parsers[f] == 'function'){
-				m.log(p+' is an alias to the custom parser function '+f+', calling directly');
-				m.parsers[f](p, v, e, m);
+				m.log(p+' is an alias to the custom utility function '+f+', calling directly');
+				m.utilities[f](p, v, e, m);
 			}else{
 				m.log(p+' is assumed to be a DOM property, editing directly');
 				e.get(0)[p] = v;
@@ -237,13 +240,13 @@ var StringQuery = {
 		}
 	},
 
-	//Parsers
-	parsers: {
-		0: function(data){
+	//Special Methods
+	methods: {
+		log: function(data){
 			StringQuery.log('Data returned, logging data.');
 			StringQuery.log(data,true);
 		},
-		1: function(data){
+		alert: function(data){
 			if(typeof data == 'object'){
 				/*
 				Data is (presumably) an array of multiple
@@ -258,7 +261,11 @@ var StringQuery = {
 				StringQuery.log('Data returned is a string, alerting with data.');
 				alert(data);
 			}
-		},
+		}
+	},
+
+	//Utility Functions
+	utilities: {
 		css: function(p, v, e){
 			for(var k in v){
 				jQuery(e).css(k, v[k]);
