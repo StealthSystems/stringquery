@@ -1,4 +1,4 @@
-# Marionette: DOM control through PHP
+# StringQuery: DOM control through PHP
 _____________________________________
 
 Building a dynamic site? Like, REALLY dynamic? So dynamic, that writing the javascript code to account for the various ajax responses would be incredibly tedious? Well, this PHP/JS framework should help.
@@ -28,14 +28,14 @@ In short, JavaScript will ping a specified script on the server, posting an acti
 
 More one how this is built, sent and processed below.
 
-Marionette.php
+StringQuery.php
 --------------
 
-The PHP class creates and tracks Marionette sessions (these are tied to the page load; allowing multiple sessions to exist comming from a single browser through multiple tabs/windows), as well as processes the $_POST['action'] value and finds the appropriate function to call and send the data to.
+The PHP class creates and tracks StringQuery sessions (these are tied to the page load; allowing multiple sessions to exist comming from a single browser through multiple tabs/windows), as well as processes the $_POST['action'] value and finds the appropriate function to call and send the data to.
 
-### Creating and instance of Marionette
+### Creating and instance of StringQuery
 
-    $M = new Marionette(array(
+    $SQ = new StringQuery(array(
         'repeat' => false,
         'actions' => array(
             'ping' => 'my_ping_function',
@@ -61,7 +61,7 @@ Just pass an array of configurations, including an array of actions in action =>
 ### Writing Action Functions
 
 Action functions will be called with the following arguments (in order):
-- Marionette &$M; The Marionette object, passed by reference
+- StringQuery &$SQ; The StringQuery object, passed by reference
 - mixed $data; The data attached to the action
 - string $action; the name of the action called (for functions that handle multiple actions)
 
@@ -69,7 +69,7 @@ From there, just process the data received and do what needs to be done, which r
 
 ### Making Changes to the DOM
 
-As explained above, Marionette sends back instructions in the form of a JSON object, with the following syntax
+As explained above, StringQuery sends back instructions in the form of a JSON object, with the following syntax
 
     {
         target: {
@@ -83,7 +83,7 @@ Here are the 4 built in methods:
 
 #### update($target, $data, $force = null)
 
-    $M->update(
+    $SQ->update(
         '#mytarget',
         array(
             'innerHTML' => 'Hey, I changed!',
@@ -93,7 +93,7 @@ Here are the 4 built in methods:
 
 #### updateProp($target, $prop, $value, $force = null)
 
-    $M->updateProp(
+    $SQ->updateProp(
         '#mytarget',
         'innerHTML',
         'Hey, I changed!'
@@ -101,13 +101,13 @@ Here are the 4 built in methods:
 
 #### call(integer $key, $data, $force = null)
 
-    $M->call(1, 'Hi there!');
+    $SQ->call(1, 'Hi there!');
 
 Note: this works very similarly to update, however it will overwrite any preexisting entries in the instructions for the desired target rather than appending the data (this is because they're intended to only be called once per set)
 
 #### bulkUpdate(array $targets, $force = null)
 
-    $M->bulkUpdate(array(
+    $SQ->bulkUpdate(array(
         '#mytarget' => array(
             'innerHTML' => 'Hey, I changed!',
             'addClass' => 'changed'
@@ -115,7 +115,7 @@ Note: this works very similarly to update, however it will overwrite any preexis
         1 => 'Hi there?'
     ));
 
-Once that's all done, Marionette will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
+Once that's all done, StringQuery will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
 
 ### Extending
 
