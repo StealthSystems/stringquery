@@ -73,22 +73,17 @@ ini_set('session.use_only_cookies', 1);
 
 class Marionette
 {
+	public $repeat = false; //specify that pings for this should be repeated
 	public $forced = false; //Default force setting
 	public $verbose = false; //Default js verbose setting
-	public $repeat = false; //specify that pings for this should be repeated
-	public $slowpings = false; //specify that pings should be a slow as possible
-	public $debug = false; //specify debug mode (current testing server doesn't allow `update`)
-
+	public $min_update_interval = 0; //The minimum update interval, added to the actual upate_interval
 	public $actions = array(); //List of function calls for each action
+
 	public $data = array(); //For collecting multiple replies to send
 	public $force = array(); //For forcing changes on any targets logged here.
-
+	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
 	public $start; //The start time of when Marionette was initialized
 	public $key; //The session entry key that holds relevant Marionette data
-
-	public $fixed_interval = false; //Whether or not to go with fixed update interval (should be for dev purposes only)
-	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
-	public $min_update_interval = 0; //The minimum update interval, added to the actual upate_interval
 
 	function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
@@ -271,50 +266,43 @@ class Marionette
 
 	// Helper Function: system load time
 	function sysLoadTime(){
-		if($this->fixed_interval){
-			$this->system_load = '?';
-		}elseif($this->debug){
-			$this->update_interval = 1000;
-			$this->system_load = '?';
+		if(@file_exists('/proc/loadavg')){
+			$load = explode(' ', file_get_contents('/proc/loadavg'));
+			$load = (float) $load[0];
+		}elseif(function_exists('shell_exec')){
+			$load = explode(' ', `uptime`);
+			$load = (float) $load[0];
 		}else{
-			if(@file_exists('/proc/loadavg')){
-				$load = explode(' ', file_get_contents('/proc/loadavg'));
-				$load = (float) $load[0];
-			}elseif(function_exists('shell_exec')){
-				$load = explode(' ', `uptime`);
-				$load = (float) $load[0];
-			}else{
-				$load = 1;
-			}
-
-			$this->system_load = $load;
-
-			if($load <= 1)
-				$u = mt_rand(1000, 2000);
-			elseif($load <= 1.5)
-				$u = mt_rand(1000, 2000);
-			elseif($load <= 2.5)
-				$u = mt_rand(1500, 2500);
-			elseif($load <= 3)
-				$u = mt_rand(2000, 3000);
-			elseif($load <= 3.25)
-				$u = mt_rand(2500, 3500);
-			elseif($load <= 3.45)
-				$u = mt_rand(3500, 4500);
-			elseif($load <= 3.55)
-				$u = mt_rand(4500, 5500);
-			elseif($load <= 3.65)
-				$u = mt_rand(5500, 6500);
-			elseif($load <= 3.75)
-				$u = mt_rand(6500, 7500);
-			elseif($load <= 3.85)
-				$u = mt_rand(7500, 8500);
-			elseif($load <= 3.95)
-				$u = mt_rand(9000, 11000);
-			else
-				$u = mt_rand(19000, 21000);
-
-			$this->update_interval = $u;
+			$load = 1;
 		}
+
+		$this->system_load = $load;
+
+		if($load <= 1)
+			$u = mt_rand(1000, 2000);
+		elseif($load <= 1.5)
+			$u = mt_rand(1000, 2000);
+		elseif($load <= 2.5)
+			$u = mt_rand(1500, 2500);
+		elseif($load <= 3)
+			$u = mt_rand(2000, 3000);
+		elseif($load <= 3.25)
+			$u = mt_rand(2500, 3500);
+		elseif($load <= 3.45)
+			$u = mt_rand(3500, 4500);
+		elseif($load <= 3.55)
+			$u = mt_rand(4500, 5500);
+		elseif($load <= 3.65)
+			$u = mt_rand(5500, 6500);
+		elseif($load <= 3.75)
+			$u = mt_rand(6500, 7500);
+		elseif($load <= 3.85)
+			$u = mt_rand(7500, 8500);
+		elseif($load <= 3.95)
+			$u = mt_rand(9000, 11000);
+		else
+			$u = mt_rand(19000, 21000);
+
+		$this->update_interval = $u;
 	}
 }
