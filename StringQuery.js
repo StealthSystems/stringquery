@@ -116,19 +116,19 @@ var StringQuery = {
 				end = (new Date()).getTime();
 
 				if(m.tries > 0){
-					m.log('Connection reestablish after '+m.tries+' tries', true);
+					m.log('Connection reestablished after '+m.tries+' tries', true);
 					m.tries = 0;
 				}
 
-				if(response !== null && response.v !== undefined)
-					m.logging = response.v;
-
 				if(!response || typeof response != 'object'){
-					m.log('Data returned is not JSON',true);
+					m.log('Data returned is not JSON', true);
 					m.log(response, true);
 					m.retry(action, data);
 					return;
 				}
+
+				if(response !== null && response.v !== undefined)
+					m.logging = response.v;
 
 				m.log('Data Returned:');
 				m.log(response);
