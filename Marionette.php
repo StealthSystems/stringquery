@@ -1,73 +1,80 @@
 <?php
 /*
-	Marionette is a 2 pronged system for manipulating the DOM.
-	This PHP class is used to build an array of instructions
-	for the JS class to follow and make changes to the DOM.
+Built with Marionette (https://github.com/dougwollison/marionette/)
 
-	Instructions are sent in this basic structure:
-	{
-		target: {
-			property: value
-		}
-	}
-
-	target =	a jQuery selector (to directly edit an element)
-				or a number to call a predefined parser function
-				within the JS class.
-				(set via Marionette.parsers[N] = function(){//do something})
-
-	property =	a DOM property or attribute to manipulate through
-				jQuery or directly through the DOM object. This can
-				also be the name of a jQuery function such as addClass,
-				or a predefined parser function.
-				(set via Marionette.parsers.X = function(){//do something})
-
-	value =		mixed data, such as a boolean, a string, or an object.
-				For jQuery functions that take multiple arguments, pass
-				an array of the arguments.
-				(set via Marionette.functions[Single|Multi].X = function(){//do something})
-
-	These instructions are then sent back in the form of a JSON object,
-	which is composed of the following:
-	{
-		i: <instrution data>
-		r: <repeat boolean>
-		u: <update interval>
-		k: <session key>
-		t: <execution time>
-		v: <verbose boolean>
-	}
-
-	update interval =	How long for the JS class to wait before sending
-						again, assuming repeat is TRUE
-
-	repeat boolean =	Wether or not to repeat this action again; this
-						is for something like a ping action that regularly
-						checks if there are new changes available
-
-	verbose boolean =	Wether or not to log debug messages in the console,
-						useful in tracking down what data was sent back and
-						ensuring it's processed properly
-
-	session key =		The key of Marionette's $_SESSION entry that this
-						particulat connection is related to.
-
-	instruction data =	The instructions for what changes to make to the DOM
-
-	execution time =	An estimate of how long it took the server to execute
-						this, used in the debug logs if verbose is true.
-
-	Marionette's uses a section of the $_SESSION variable to store
-	information such as previously sent instructions so as to cut out
-	redundant changes (unless they are marked as forced, in which
-	case it will send that change no matter what).
-
-	Marionette's session variable supports multiple instances; if
-	the user has multiple windows open, the changes will only affect
-	the specific window. In an attempt to prevent memory hogging,
-	Marionette regularly clears out sessions that haven't been touched
-	for the last 60 seconds.
+Copyright (c) 2012 Doug Wollison & Richard Cornwell
+For conditions of distribution and use, see copyright notice in LICENSE
 */
+
+/**
+ * Marionette is a 2 pronged system for manipulating the DOM.
+ * This PHP class is used to build an array of instructions
+ * for the JS class to follow and make changes to the DOM.
+ *
+ * Instructions are sent in this basic structure:
+ * {
+ * 		target: {
+ * 			property: value
+ * 		}
+ * }
+ *
+ * target =	a jQuery selector (to directly edit an element)
+ * 			or a number to call a predefined parser function
+ * 			within the JS class.
+ * 			(set via Marionette.parsers[N] = function(){//do something})
+ *
+ * property =	a DOM property or attribute to manipulate through
+ * 			jQuery or directly through the DOM object. This can
+ * 			also be the name of a jQuery function such as addClass,
+ * 			or a predefined parser function.
+ * 			(set via Marionette.parsers.X = function(){//do something})
+ *
+ * value =		mixed data, such as a boolean, a string, or an object.
+ * 			For jQuery functions that take multiple arguments, pass
+ * 			an array of the arguments.
+ * 			(set via Marionette.functions[Single|Multi].X = function(){//do something})
+ *
+ * These instructions are then sent back in the form of a JSON object,
+ * which is composed of the following:
+ * {
+ * 		i: <instrution data>
+ * 		r: <repeat boolean>
+ * 		u: <update interval>
+ * 		k: <session key>
+ * 		t: <execution time>
+ * 		v: <verbose boolean>
+ * }
+ *
+ * instruction data:	The instructions for what changes to make to the DOM
+ *
+ * repeat boolean:		Wether or not to repeat this action again; this
+ * 						is for something like a ping action that regularly
+ * 						checks if there are new changes available
+ *
+ * update interval:		How long for the JS class to wait before sending
+ * 						again, assuming repeat is TRUE
+ *
+ * session key:			The key of Marionette's $_SESSION entry that this
+ * 						particulat connection is related to.
+ *
+ * execution time:		An estimate of how long it took the server to execute
+ * 						this, used in the debug logs if verbose is true.
+ *
+ * verbose boolean:		Wether or not to log debug messages in the console,
+ * 						useful in tracking down what data was sent back and
+ * 						ensuring it's processed properly
+ *
+ * Marionette's uses a section of the $_SESSION variable to store
+ * information such as previously sent instructions so as to cut out
+ * redundant changes (unless they are marked as forced, in which
+ * case it will send that change no matter what).
+ *
+ * Marionette's session variable supports multiple instances; if
+ * the user has multiple windows open, the changes will only affect
+ * the specific window. In an attempt to prevent memory hogging,
+ * Marionette regularly clears out sessions that haven't been touched
+ * for the last 60 seconds.
+ */
 ini_set('session.use_cookies', 1);
 ini_set('session.use_only_cookies', 1);
 
