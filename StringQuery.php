@@ -95,8 +95,11 @@ class StringQuery
 
 	function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
-		$this->key = !empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null' ? $_REQUEST['StringQuery']['k'] : md5($_SERVER['REMOTE_ADDR']).md5(microtime());
-
+		if(!empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null'){
+			$this->key = $_REQUEST['StringQuery']['k'];
+		}else{
+			$this->key = md5($_SERVER['REMOTE_ADDR']).md5(microtime());
+		}
 
 		//Check if StringQuery data is setup for this session, setup with birth time if not
 		if(!isset($_SESSION['StringQuery'][$this->key]) || !is_array($_SESSION['StringQuery'][$this->key]))
