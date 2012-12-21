@@ -32,7 +32,7 @@
 	{
 		u: <update interval>
 		r: <repeat boolean>
-		l: <logging boolean>
+		l: <verbose boolean>
 		k: <session key>
 		c: <instrution data>
 		t: <execution time>
@@ -45,7 +45,7 @@
 						is for something like a ping action that regularly
 						checks if there are new changes available
 
-	logging boolean =	Wether or not to log debug messages in the console,
+	verbose boolean =	Wether or not to log debug messages in the console,
 						useful in tracking down what data was sent back and
 						ensuring it's processed properly
 
@@ -55,7 +55,7 @@
 	instruction data =	The instructions for what changes to make to the DOM
 
 	execution time =	An estimate of how long it took the server to execute
-						this, used in the debug logs if logging is true.
+						this, used in the debug logs if verbose is true.
 
 	Marionette's uses a section of the $_SESSION variable to store
 	information such as previously sent instructions so as to cut out
@@ -73,11 +73,10 @@ ini_set('session.use_only_cookies', 1);
 
 class Marionette
 {
-	public $slowpings = false; //specify that pings should be a slow as possible
-	public $repeat = false; //specify that pings for this should be repeated
-	public $append = false; //Default append setting
 	public $forced = false; //Default force setting
-	public $logging = false; //Default js log setting
+	public $verbose = false; //Default js verbose setting
+	public $repeat = false; //specify that pings for this should be repeated
+	public $slowpings = false; //specify that pings should be a slow as possible
 	public $debug = false; //specify debug mode (current testing server doesn't allow `update`)
 
 	public $actions = array(); //List of function calls for each action
@@ -114,7 +113,7 @@ class Marionette
 		}
 	}
 
-	function __construct($args){		
+	function __construct($args){
 		$this->start = microtime(true);
 
 		$this->make_key();
@@ -180,7 +179,7 @@ class Marionette
 		echo json_encode(array(
 			'u' => $this->update_interval + $this->min_update_interval,
 			'r' => $this->repeat,
-			'l' => $this->logging,
+			'l' => $this->verbose,
 			'k' => $this->key,
 			'c' => $data,
 			't' => round(microtime(true) - $this->start, 4)
@@ -190,39 +189,27 @@ class Marionette
 	}
 
 	// Update a target with multiple properties
-	function update($target, $data, $force = null, $append = null){
+	function update($target, $data, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
 		if($force) //Add target to list of forced changes
 			$this->force[] = $target;
 
-		if($append === null) //set $append to the default setting
-			$append = $this->append;
-
-		if($append){
-			//Add it to the $data array
-			if(is_array($this->data[$target])){
-				//changes for this target exist, add/ovewrite property
-				$this->data[$target][$prop] = $option;
-			}else{
-				//create new $data entry for this target
-				$this->data[$target] = array(
-					$prop => $option
-				);
-			}
+		//Add it to the $data array
+		if(is_array($this->data[$target])){
+			//changes for this target exist, add/ovewrite property
+			$this->data[$target][$prop] = $option;
 		}else{
-			//Immediately reply with the passed data
-			$this->reply(
-				array(
-					$target => $data
-				)
+			//create new $data entry for this target
+			$this->data[$target] = array(
+				$prop => $option
 			);
 		}
 	}
 
 	// Update a specific property
-	function updateProp($target, $prop, $value, $force = null, $append = null, $bool = false){
+	function updateProp($target, $prop, $value, $force = null, $bool = false){
 		if($bool){ //property must be TRUE or FALSE
 			if($value == 1) $value = true;
 			else $value = false;
@@ -234,58 +221,32 @@ class Marionette
         if($force) //Add target to list of forced changes
             $this->force[] = $target;
 
-		if($append === null) //set $append to the default setting
-			$append = $this->append;
-
-		if($append){
-			//Add it to the $data array
-			if(isset($this->data[$target]) && is_array($this->data[$target])){
-				//changes for this target exist, add/ovewrite property
-				$this->data[$target][$prop] = $value;
-			}else{
-				//create new $data entry for this target
-				$this->data[$target] = array(
-					$prop => $value
-				);
-			}
+		//Add it to the $data array
+		if(isset($this->data[$target]) && is_array($this->data[$target])){
+			//changes for this target exist, add/ovewrite property
+			$this->data[$target][$prop] = $value;
 		}else{
-			//Immediately reply with the passed data
-			$this->reply(
-				array(
-					$target => array(
-						$prop => $value
-					)
-				)
+			//create new $data entry for this target
+			$this->data[$target] = array(
+				$prop => $value
 			);
 		}
 	}
 
 	// Call a predefined numeric parser
-	function call($key, $data, $force = null, $append = null){
+	function call($key, $data, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
         if($force) //Add target to list of forced changes
             $this->force[] = $key;
 
-		if($append === null) //set $append to the default setting
-			$append = $this->append;
-
-		if($append){
-			//Add it to the $data array
-			$this->data[$key] = $data;
-		}else{
-			//Immediately reply with the passed data
-			$this->reply(
-				array(
-					$key => $data
-				)
-			);
-		}
+		//Add it to the $data array
+		$this->data[$key] = $data;
 	}
 
 	// Update multiple targets in one go
-	function bulkUpdate(array $targets, $force = null, $append = null){
+	function bulkUpdate(array $targets, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
@@ -294,30 +255,17 @@ class Marionette
 				$this->force[] = $target;
 			}
 
-		if($append === null) //set $append to the default setting
-			$append = $this->append;
-
-		if($append){
-			//Add it to the $data array
-			foreach($targets as $target => $data){
-				if(is_array($this->data[$target])){
-					//changes for this target exist, add/ovewrite properties
-					foreach($target as $prop => $value){
-						$this->data[$target][$prop] = $value;
-					}
-				}else{
-					//create new $data entry for this target
-					$this->data[$target] = $data;
+		//Add it to the $data array
+		foreach($targets as $target => $data){
+			if(is_array($this->data[$target])){
+				//changes for this target exist, add/ovewrite properties
+				foreach($target as $prop => $value){
+					$this->data[$target][$prop] = $value;
 				}
+			}else{
+				//create new $data entry for this target
+				$this->data[$target] = $data;
 			}
-		}else{
-			//Immediately reply with the passed data
-			foreach($targets as $target => $data){
-				$reply[] = array(
-					$target => $data
-				);
-			}
-			$this->reply($reply);
 		}
 	}
 
