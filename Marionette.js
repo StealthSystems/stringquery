@@ -1,3 +1,5 @@
+//Make sure jQuery is defined
+if(typeof jQuery == 'function'){
 //Marionette Javascript API
 var Marionette = {
 	//Script script
@@ -80,7 +82,7 @@ var Marionette = {
 	//The send data function
 	sendData: function(action, data, skipLogging){
 		var m = this;
-		var $ = jQuery;
+		var jQuery = jQuery;
 
 		m.sendCount++;
 
@@ -98,7 +100,7 @@ var Marionette = {
 
 		var start = (new Date()).getTime(), end;
 
-		$.ajax({
+		jQuery.ajax({
 			url: m.script,
 			data: {Marionette: request},
 			dataType: 'json',
@@ -136,7 +138,7 @@ var Marionette = {
 					for(t in c){ // t = target
 						m.log('Begin Processing '+t);
 
-						if(t.match(/^\d+$/)){
+						if(t.match(/^\d+jQuery/)){
 							//Data is being sent to a predefined "mode" function
 							m.log(t+' is numeric, calling custom parser function matching that ID with the following data: "'+c[t]+'"');
 							if(typeof m.parsers[t] == 'function'){//Make sure the function exists
@@ -146,7 +148,7 @@ var Marionette = {
 							}
 						}else{
 							m.log(t+' is a selector, running through attribute settings');
-							e = $(t);
+							e = jQuery(t);
 							if(e.length > 0){
 								for(p in c[t]){ // p = property
 									m.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+c[t][p]+'"');
@@ -192,11 +194,11 @@ var Marionette = {
 		var f, m = this;
 		if(p.match(/data-/) || m.in_array(p, m.attributes)){
 			//Updating a registered attritube
-			m.log(p+' is a registered attribute, editing via $.fn.attr');
+			m.log(p+' is a registered attribute, editing via jQuery.fn.attr');
 			e.attr(p, v);
 		}else if(m.in_array(p, m.properties)){
 			//Updating a registered property
-			m.log(p+' is a registered property, editing via $.fn.prop');
+			m.log(p+' is a registered property, editing via jQuery.fn.prop');
 			e.prop(p, v);
 		}else if(m.in_array(p, m.functionsVoid)){
 			//Updating a registered jQuery function
@@ -210,7 +212,7 @@ var Marionette = {
 			//Updating a registered multi argument jQuery function
 			//(value is assumed to be array of arguments)
 			m.log(p+' is a registered multi argument function, calling function through apply');
-			$.fn[p].apply(e, v);
+			jQuery.fn[p].apply(e, v);
 		}else{
 			f = m.parsers[p];
 			if(typeof f == 'function'){
@@ -250,12 +252,12 @@ var Marionette = {
 		},
 		css: function(p, v, e){
 			for(var k in v){
-				$(e).css(k, v[k]);
+				jQuery(e).css(k, v[k]);
 			}
 		},
 		data: function(p, v, e){
 			for(var k in v){
-				$(e).data(k, v[k]);
+				jQuery(e).data(k, v[k]);
 			}
 		},
 		traverse: function(p, v, e, m){
@@ -267,7 +269,7 @@ var Marionette = {
 				s = null;
 			}
 			for(var k in v){
-				m.process(k, v[k], $(e)[p](s));
+				m.process(k, v[k], jQuery(e)[p](s));
 			}
 		},
 		children: 'traverse',
@@ -291,12 +293,15 @@ var Marionette = {
 };
 
 //Setup Marionette form functionality
-if(typeof jQuery == 'function')
 jQuery(document).ready(function(){
-	$('body').on('submit', 'form.marionette', function(e){
+	//Form submit functionality
+	jQuery('body').on('submit', 'form.marionette', function(e){
 		e.preventDefault();
 		var action = $(this).data('action');
 		var data = $(this).serialize();
 		Marionette.sendData(action, data);
 	});
 });
+}else{
+	console.log('jQuery is not defined, unable to load Marionette.');
+}
