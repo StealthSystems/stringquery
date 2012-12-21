@@ -84,6 +84,7 @@ class Marionette
 	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
 	public $start; //The start time of when Marionette was initialized
 	public $key; //The session entry key that holds relevant Marionette data
+	public $system_load; //Store the system load at time of running Marionette
 
 	function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
