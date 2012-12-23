@@ -256,6 +256,15 @@ This is the base interval between retries to send a request to the server. In us
 
 As the name suggests, you can set a default value for the data to be sent for a particular action. This is usefull primarily in the case of the 'ping' action, allowing you to change the data being sent without reinitiating the request cycle.
 
+### StringQuery forms
+
+StringQuery.js includes a jQuery event handler for the submission of any form with the class <code>.string-query</code>. It sends the serialized form values as the data argument, and uses one of 2 sources for the action argument:
+
+- An input with the name string_query_action (if present), or
+- The value of the data-action attribute (as a fallback; if present)
+
+This allows you to dynamically insert a form into the DOM, preprogrammed to trigger StringQuery.sendData() when they're submitted.
+
 Copyright & Credits
 -------------------
 
