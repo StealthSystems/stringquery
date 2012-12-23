@@ -221,5 +221,61 @@ And then all you need to do to call it from the server is to use the StringQuery
     
 Note: if you call this through StringQuery::update or StringQuery::bulkUpdate, make sure to prefix the method name with an @, so that the JavaScript object can tell it's a method and not some kind of jQuery selector.
 
-_____
-Documentation in progres...
+You can also extend the StringQuery.function lists to add additional noArg, oneArg and multiArg jQuery functions, such as plugins.
+
+	StringQuery.functions.multiArg.push('myplugin');
+	
+From the PHP side, you'd pass the instructions like so:
+
+	$SQ->updateProp(
+		'#myelement',
+		'myplugin',
+		array(
+			'arg1',
+			'arg2'
+		)
+	);
+	
+Note: when calling a noArg function, you should pass it as simply <code>'myplugin' => null</code>, since the value is ignored.
+
+The same applies for extending the attributes and properties lists, and the various utility functions or aliases.
+
+### Configurable Properties
+
+StringQuery has a few properties that can be configured before or during the init() call.
+
+#### StringQuery.script
+
+This is the URL to the script StringQuery makes AJAX calls. Ideallu, this is set during init() and never changed, however there's nothing stopping you from having it change the script by passing an override to StringQuery.sendData();
+
+#### StringQuery.retryPace
+
+This is the base interval between retries to send a request to the server. In use, the value is slowly increased by 10% each try.
+
+#### StringQuery.defaultData.[action]
+
+As the name suggests, you can set a default value for the data to be sent for a particular action. This is usefull primarily in the case of the 'ping' action, allowing you to change the data being sent without reinitiating the request cycle.
+
+Copyright & Credits
+-------------------
+
+Copyright (C) 2012 Doug Wollison & Richard Cornwell
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+Doug Wollison (Zumoro) <doug@wollison.net>
+Richard Cornwell (RCP) <rcp@techtoknow.net>
