@@ -92,7 +92,6 @@ class StringQuery
 	public $session_lifetime = 60; //How many seconds a session can last without being touched before getting deleted
 	public $start; //The start time of when StringQuery was initialized
 	public $key; //The session entry key that holds relevant StringQuery data
-	public $system_load; //Store the system load at time of running StringQuery
 
 	function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
@@ -123,9 +122,11 @@ class StringQuery
 	function __construct($args){
 		$this->start = microtime(true);
 
+		//Generate/Load session key and clean out the session
 		$this->make_key();
 		$this->clean_session();
 
+		//Check the system load and adjust the update interval accordingly
 		$this->sysLoadTime();
 
 		foreach($args as $arg => $value){
@@ -181,6 +182,9 @@ class StringQuery
 				$session[$target] = $change;
 			}
 		}
+
+		//Check the system load and adjust the update interval accordingly
+		$this->sysLoadTime();
 
 		//Print out the JSON data
 		echo json_encode(array(
@@ -284,8 +288,6 @@ class StringQuery
 		}else{
 			$load = 1;
 		}
-
-		$this->system_load = $load;
 
 		if($load <= 1)
 			$u = mt_rand(1000, 2000);
