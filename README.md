@@ -128,6 +128,17 @@ Note: this works very similarly to update, however it will overwrite any preexis
 
 Once that's all done, StringQuery will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
 
+### StringQuery::systemLoad()
+
+The StringQuery class includes a method used to determine the load on the server, and is run during the construction call and right before sending the JSON. This allows it to dynamically adjust the $update_interval and minimize the chances of StringQuery triggering an accidental DDOS on your own site. It determins the server load one of 2 ways:
+
+- Using the /proc/loadavg file
+- Using the uptime command
+
+If neither method is available, StringQuery defaults to assume the server load is relatively low. It then assigns a random value between two numbers to the $update_interval variable; the range determined by the server load.
+
+You are encouraged to write your own extension of StringQuery so that you can define your own version of systemLoad(), just make sure you set a value for the $update_interval variable; the function is not intended to return a value. The one currently in place is based on a 4 core server, which might not be at all like what you're implementing it on.
+
 ### Extending
 
 This is going to be brief, since honestly it's the same as extending any other PHP class; you can overwrite an existing function or add a new one that uses on the base ones, for instance:
