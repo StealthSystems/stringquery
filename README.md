@@ -297,5 +297,5 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-Doug Wollison (Zumoro) <doug@wollison.net>
+Doug Wollison (Zumoro) <doug@wollison.net>  
 Richard Cornwell (RCP) <rcp@techtoknow.net>
