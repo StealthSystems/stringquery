@@ -317,8 +317,18 @@ jQuery(document).ready(function(){
 	//Form submit functionality
 	jQuery('body').on('submit', 'form.string-query', function(e){
 		e.preventDefault();
-		var action = $(this).data('action');
-		var data = $(this).serialize();
-		StringQuery.sendData(action, data);
+		var action, data;
+		var input = $('input[name="string_query_action"]',this);
+		//Get action name from either input element or data attribute
+		if(input.length > 0){
+			action = input.val();
+		}else{
+			action = $(this).data('action');	
+		}
+		data = $(this).serialize();
+		
+		//If there's an action, trigger sendData()
+		if(action != '')
+			StringQuery.sendData(action, data);
 	});
 });
