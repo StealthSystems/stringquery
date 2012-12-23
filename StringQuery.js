@@ -17,7 +17,7 @@ var StringQuery = {
 	updateInterval: 1000,
 
 	//Default data to send
-	defaultData: null,
+	defaultData: {},
 
 	//Send Count
 	sendCount: 0,
@@ -87,7 +87,7 @@ var StringQuery = {
 	},
 
 	//The send data function
-	sendData: function(action, data){
+	sendData: function(action, data, script){
 		var m = this;
 		var jQuery = jQuery;
 
@@ -100,7 +100,10 @@ var StringQuery = {
 		if(typeof data == 'undefined')
 			request = {action: action, k: this.sessionKey};
 		else
-			request = {action: action, k: this.sessionKey, data: data === null ? m.defaultData : data};
+			request = {action: action, k: this.sessionKey, data: typeof m.defaultData[action] != 'undefined' ? m.defaultData[action] : data};
+			
+		if(typeof data == 'undefined')
+			script = script;
 
 		m.log('Sending the following data to '+m.script+':');
 		m.log(request);
@@ -108,7 +111,7 @@ var StringQuery = {
 		var start = (new Date()).getTime(), end;
 
 		jQuery.ajax({
-			url: m.script,
+			url: script,
 			data: {StringQuery: request},
 			dataType: 'json',
 			type: 'POST',
@@ -175,12 +178,12 @@ var StringQuery = {
 					m.log('Interval set and repeat is true, setting timeout to repeat "'+action+'" action to "'+m.script+'"');
 
 					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data);
+						m.sendData(action, data, script);
 					}, response.u);
 				}else if(action == 'ping'){
 					//Reping the server anyway in 1 minute, just in case
 					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data);
+						m.sendData(action, data, script);
 					}, 60000);
 				}
 
@@ -189,7 +192,7 @@ var StringQuery = {
 			},
 			error: function(jqXHR, textStatus, errorThrown){
 				m.log(jqXHR, true);
-				m.retry(action, data);
+				m.retry(action, data, script);
 			}
 		});
 	},
