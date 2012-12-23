@@ -5,8 +5,6 @@ Copyright (c) 2012 Doug Wollison & Richard Cornwell
 For conditions of distribution and use, see copyright notice in LICENSE
 */
 
-//Make sure jQuery is defined
-if(typeof jQuery == 'function'){
 //StringQuery Javascript API
 var StringQuery = {
 	//Script script
@@ -314,13 +312,10 @@ var StringQuery = {
 //Setup StringQuery form functionality
 jQuery(document).ready(function(){
 	//Form submit functionality
-	jQuery('body').on('submit', 'form.marionette', function(e){
+	jQuery('body').on('submit', 'form.string-query', function(e){
 		e.preventDefault();
 		var action = $(this).data('action');
 		var data = $(this).serialize();
 		StringQuery.sendData(action, data);
 	});
 });
-}else{
-	console.log('jQuery is not defined, unable to load StringQuery.');
-}
