@@ -279,7 +279,7 @@ This allows you to dynamically insert a form into the DOM, preprogrammed to trig
 Copyright & Credits
 -------------------
 
-Copyright (C) 2012 Doug Wollison & Richard Cornwell
+Copyright © 2012 Doug Wollison & Richard Cornwell
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
