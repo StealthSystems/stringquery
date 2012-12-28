@@ -35,7 +35,7 @@ The PHP class creates and tracks StringQuery sessions (these are tied to the pag
 
 ### Creating and instance of StringQuery
 
-	include('StringQuery.php);
+    include('StringQuery.php');
 	
     $SQ = new StringQuery(array(
         'repeat' => false,
