@@ -76,6 +76,10 @@ Action functions will be called with the following arguments (in order):
 - mixed $data; The data attached to the action
 - string $action; the name of the action called (for functions that handle multiple actions)
 
+    function my_ping_action(&$SQ, $data, $action){
+    	//do stuff with data
+    }
+
 From there, just process the data received and do what needs to be done, which reminds me...
 
 ### Making Changes to the DOM
