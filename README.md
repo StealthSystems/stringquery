@@ -35,6 +35,8 @@ The PHP class creates and tracks StringQuery sessions (these are tied to the pag
 
 ### Creating and instance of StringQuery
 
+    include('StringQuery.php');
+	
     $SQ = new StringQuery(array(
         'repeat' => false,
         'actions' => array(
@@ -75,6 +77,12 @@ Action functions will be called with the following arguments (in order):
 - StringQuery &$SQ; The StringQuery object, passed by reference
 - mixed $data; The data attached to the action
 - string $action; the name of the action called (for functions that handle multiple actions)
+
+Here's what your action function would look like:
+
+    function my_ping_action(&$SQ, $data, $action){
+        //Do stuff with $data
+    }
 
 From there, just process the data received and do what needs to be done, which reminds me...
 
