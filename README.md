@@ -60,6 +60,10 @@ Just pass an array of configurations, including an array of actions in action =>
 - $actions
   - An array of action values and the name of the function to run (must be a function name; other callback types not yet supported. See Bugs & Limitations for details
 
+You can of course override these properties whenever. The most common example is enabling repeat for only the ping action:
+
+    $SQ->repeat = true;
+
 #### Construction Process
 
 When constructed, StringQuery goes through the following steps:
