@@ -217,7 +217,7 @@ var StringQuery = {
 			//Updating a registered jQuery function
 			q.log(p+' is a registered void function, calling function directly');
 			e[p]();
-		}else if(q.in_array(p, q.functions.oneArg){
+		}else if(q.in_array(p, q.functions.oneArg)){
 			//Updating a registered jQuery function
 			q.log(p+' is a registered single argument function, calling function directly');
 			e[p](v);
