@@ -88,25 +88,24 @@ var StringQuery = {
 
 	//The send data function
 	sendData: function(action, data, script){
-		var m = this;
-		var jQuery = jQuery;
+		var q  = this;
 
-		m.sendCount++;
+		q.sendCount++;
 
-		m.log('Send #'+this.sendCount);
-		m.log('Session Key: '+this.sessionKey);
+		q.log('Send #'+this.sendCount);
+		q.log('Session Key: '+this.sessionKey);
 
 		var request;
 		if(typeof data == 'undefined')
 			request = {action: action, k: this.sessionKey};
 		else
-			request = {action: action, k: this.sessionKey, data: typeof m.defaultData[action] != 'undefined' ? m.defaultData[action] : data};
+			request = {action: action, k: this.sessionKey, data: typeof q.defaultData[action] != 'undefined' ? q.defaultData[action] : data};
 			
 		if(typeof data == 'undefined')
 			script = script;
 
-		m.log('Sending the following data to '+m.script+':');
-		m.log(request);
+		q.log('Sending the following data to '+q.script+':');
+		q.log(request);
 
 		var start = (new Date()).getTime(), end;
 
@@ -118,56 +117,56 @@ var StringQuery = {
 			success: function(response){
 				end = (new Date()).getTime();
 
-				if(m.tries > 0){
-					m.log('Connection reestablished after '+m.tries+' tries', true);
-					m.tries = 0;
+				if(q.tries > 0){
+					q.log('Connection reestablished after '+q.tries+' tries', true);
+					q.tries = 0;
 				}
 
 				if(!response || typeof response != 'object'){
-					m.log('Data returned is not JSON', true);
-					m.log(response, true);
-					m.retry(action, data);
+					q.log('Data returned is not JSON', true);
+					q.log(response, true);
+					q.retry(action, data);
 					return;
 				}
 
 				if(response !== null && response.v !== undefined)
-					m.logging = response.v;
+					q.logging = response.v;
 
-				m.log('Data Returned:');
-				m.log(response);
+				q.log('Data Returned:');
+				q.log(response);
 
 				if(response.k !== undefined){
-					m.log('Setting session key: '+response.k);
-					m.sessionKey = response.k;
+					q.log('Setting session key: '+response.k);
+					q.sessionKey = response.k;
 				}
 
 				//Process instructions if present
 				if(response.i !== undefined && typeof response.i == 'object'){
 					var i, t, e, p;
 						i = response.i;
-					m.log('Procession Changes');
+					q.log('Procession Changes');
 					for(t in i){ // t = target
-						m.log('Begin Processing '+t);
+						q.log('Begin Processing '+t);
 
 						if(t.charAt(0) == '@'){
 							//Data is being sent to a predefined "mode" function
-							m.log(t+' is or @ prefixed, calling special method function matching that ID/name with the following data: "'+c[t]+'"');
+							q.log(t+' is or @ prefixed, calling special method function matching that ID/name with the following data: "'+c[t]+'"');
 							var n = t.replace('@','');
-							if(typeof m.methods[n] == 'function'){//Make sure the function exists
-								m.methods[n](i[t], t);
+							if(typeof q.methods[n] == 'function'){//Make sure the function exists
+								q.methods[n](i[t], t);
 							}else{
-								m.log('No function at methods['+n+'] exists');
+								q.log('No function at methods['+n+'] exists');
 							}
 						}else{
-							m.log(t+' is a selector, running through attribute settings');
+							q.log(t+' is a selector, running through attribute settings');
 							e = jQuery(t);
 							if(e.length > 0){
 								for(p in c[t]){ // p = property
-									m.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+i[t][p]+'"');
-									m.process(p, i[t][p], e);
+									q.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+i[t][p]+'"');
+									q.process(p, i[t][p], e);
 								}
 							}else{
-								m.log('No elements matching "'+t+'" were found.');
+								q.log('No elements matching "'+t+'" were found.');
 							}
 						}
 					}
@@ -175,24 +174,24 @@ var StringQuery = {
 
 				//Repeat action if needed and if an interval is present
 				if(response.u !== undefined && response.r === true){
-					m.log('Interval set and repeat is true, setting timeout to repeat "'+action+'" action to "'+m.script+'"');
+					q.log('Interval set and repeat is true, setting timeout to repeat "'+action+'" action to "'+q.script+'"');
 
-					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data, script);
+					q.timeouts[action] = setTimeout(function(){
+						q.sendData(action, data, script);
 					}, response.u);
 				}else if(action == 'ping'){
 					//Reping the server anyway in 1 minute, just in case
-					m.timeouts[action] = setTimeout(function(){
-						m.sendData(action, data, script);
+					q.timeouts[action] = setTimeout(function(){
+						q.sendData(action, data, script);
 					}, 60000);
 				}
 
-				m.log('Client Execution Time: '+(end-start)+'ms');
-				m.log('Server Execution Time: '+response.t+'ms');
+				q.log('Client Execution Time: '+(end-start)+'ms');
+				q.log('Server Execution Time: '+response.t+'ms');
 			},
 			error: function(jqXHR, textStatus, errorThrown){
-				m.log(jqXHR, true);
-				m.retry(action, data, script);
+				q.log(jqXHR, true);
+				q.retry(action, data, script);
 			}
 		});
 	},
@@ -205,38 +204,38 @@ var StringQuery = {
 
 	//Process the property/value for the element
 	process: function(p, v, e){
-		var f, m = this;
-		if(p.match(/data-/) || m.in_array(p, m.attributes)){
+		var f, q = this;
+		if(p.match(/data-/) || q.in_array(p, q.attributes)){
 			//Updating a registered attritube
-			m.log(p+' is a registered attribute, editing via jQuery.fn.attr');
+			q.log(p+' is a registered attribute, editing via jQuery.fn.attr');
 			e.attr(p, v);
-		}else if(m.in_array(p, m.properties)){
+		}else if(q.in_array(p, q.properties)){
 			//Updating a registered property
-			m.log(p+' is a registered property, editing via jQuery.fn.prop');
+			q.log(p+' is a registered property, editing via jQuery.fn.prop');
 			e.prop(p, v);
-		}else if(m.in_array(p, m.functions.noArg)){
+		}else if(q.in_array(p, q.functions.noArg)){
 			//Updating a registered jQuery function
-			m.log(p+' is a registered void function, calling function directly');
+			q.log(p+' is a registered void function, calling function directly');
 			e[p]();
-		}else if(m.in_array(p, m.functions.oneArg){
+		}else if(q.in_array(p, q.functions.oneArg){
 			//Updating a registered jQuery function
-			m.log(p+' is a registered single argument function, calling function directly');
+			q.log(p+' is a registered single argument function, calling function directly');
 			e[p](v);
-		}else if(m.in_array(p, m.functions.multiArg)){
+		}else if(q.in_array(p, q.functions.multiArg)){
 			//Updating a registered multi argument jQuery function
 			//(value is assumed to be array of arguments)
-			m.log(p+' is a registered multi argument function, calling function through apply');
+			q.log(p+' is a registered multi argument function, calling function through apply');
 			jQuery.fn[p].apply(e, v);
 		}else{
-			f = m.utilities[p];
+			f = q.utilities[p];
 			if(typeof f == 'function'){
-				m.log(p+' is a custom utility function, calling directly');
-				m.utilities[p](p, v, e, m);
-			}else if(typeof m.parsers[f] == 'function'){
-				m.log(p+' is an alias to the custom utility function '+f+', calling directly');
-				m.utilities[f](p, v, e, m);
+				q.log(p+' is a custom utility function, calling directly');
+				q.utilities[p](p, v, e, q);
+			}else if(typeof q.parsers[f] == 'function'){
+				q.log(p+' is an alias to the custom utility function '+f+', calling directly');
+				q.utilities[f](p, v, e, q);
 			}else{
-				m.log(p+' is assumed to be a DOM property, editing directly');
+				q.log(p+' is assumed to be a DOM property, editing directly');
 				e.each(function(){
 					this[p] = v;
 				});
@@ -258,8 +257,8 @@ var StringQuery = {
 				log them.
 				*/
 				StringQuery.log('Data returned is an object, assuming it\'s an array of messages to alert with.');
-				for(var m in data){
-					alert(data[m]);
+				for(var q in data){
+					alert(data[q]);
 				}
 			}else{//data is just a string (single message), log it.
 				StringQuery.log('Data returned is a string, alerting with data.');
@@ -280,7 +279,7 @@ var StringQuery = {
 				jQuery(e).data(k, v[k]);
 			}
 		},
-		traverse: function(p, v, e, m){
+		traverse: function(p, v, e, q){
 			var s;
 			if(v.length == 2){
 				s = v[0];
@@ -289,7 +288,7 @@ var StringQuery = {
 				s = null;
 			}
 			for(var k in v){
-				m.process(k, v[k], jQuery(e)[p](s));
+				q.process(k, v[k], jQuery(e)[p](s));
 			}
 		},
 		children: 'traverse',
