@@ -124,7 +124,7 @@ Here are the 4 built in methods:
 
 #### call(integer $key, $data, $force = null)
 
-    $SQ->call('@alert', 'Hi there!');
+    $SQ->call('alert', 'Hi there!');
 
 Note: this works very similarly to update, however it will overwrite any preexisting entries in the instructions for the desired target rather than appending the data (this is because they're intended to only be called once per set)
 
