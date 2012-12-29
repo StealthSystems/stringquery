@@ -101,8 +101,8 @@ var StringQuery = {
 		else
 			request = {action: action, k: this.sessionKey, data: typeof q.defaultData[action] != 'undefined' ? q.defaultData[action] : data};
 			
-		if(typeof data == 'undefined')
-			script = script;
+		if(typeof script == 'undefined')
+			script = q.script;
 
 		q.log('Sending the following data to '+q.script+':');
 		q.log(request);
