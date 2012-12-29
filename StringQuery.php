@@ -208,14 +208,12 @@ class StringQuery
 			$this->force[] = $target;
 
 		//Add it to the $data array
-		if(is_array($this->data[$target])){
-			//changes for this target exist, add/ovewrite property
-			$this->data[$target][$prop] = $option;
+		if(isset($this->data[$target]) && is_array($this->data[$target])){
+			//changes for this target exist, add/ovewrite properties
+			$this->data[$target] = array_merge($this->data[$target], $data);
 		}else{
 			//create new $data entry for this target
-			$this->data[$target] = array(
-				$prop => $option
-			);
+			$this->data[$target] = $data;
 		}
 	}
 
@@ -264,17 +262,7 @@ class StringQuery
 			}
 
 		//Add it to the $data array
-		foreach($targets as $target => $data){
-			if(is_array($this->data[$target])){
-				//changes for this target exist, add/ovewrite properties
-				foreach($target as $prop => $value){
-					$this->data[$target][$prop] = $value;
-				}
-			}else{
-				//create new $data entry for this target
-				$this->data[$target] = $data;
-			}
-		}
+		$this->data = array_merge_recursive($this->data, $targets);
 	}
 
 	// Helper Function: system load time
