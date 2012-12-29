@@ -161,7 +161,7 @@ var StringQuery = {
 							q.log(t+' is a selector, running through attribute settings');
 							e = jQuery(t);
 							if(e.length > 0){
-								for(p in c[t]){ // p = property
+								for(p in i[t]){ // p = property
 									q.log('Editing "'+p+'" for "'+t+'" with the folowing data: "'+i[t][p]+'"');
 									q.process(p, i[t][p], e);
 								}
