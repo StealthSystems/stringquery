@@ -231,7 +231,7 @@ var StringQuery = {
 			if(typeof f == 'function'){
 				q.log(p+' is a custom utility function, calling directly');
 				q.utilities[p](p, v, e, q);
-			}else if(typeof q.parsers[f] == 'function'){
+			}else if(typeof q.utilities[f] == 'function'){
 				q.log(p+' is an alias to the custom utility function '+f+', calling directly');
 				q.utilities[f](p, v, e, q);
 			}else{
