@@ -32,7 +32,7 @@ For conditions of distribution and use, see copyright notice in LICENSE
  * value:	mixed data, such as a boolean, a string, or an object.
  * 			For jQuery functions that take multiple arguments, pass
  * 			an array of the arguments.
- * 			(set via StringQuery.functions[Single|Multi].X = function(){//do something})
+ * 			(set via StringQuery.functions.[oneArg|multiArg|noArg].X = function(){//do something})
  *
  * These instructions are then sent back in the form of a JSON object,
  * which is composed of the following:
