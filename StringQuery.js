@@ -1,7 +1,7 @@
 /*
 Built with StringQuery (https://github.com/dougwollison/marionette/)
 
-Copyright (c) 2012 Doug Wollison & Richard Cornwell
+Copyright © 2012 Doug Wollison & Richard Cornwell
 For conditions of distribution and use, see copyright notice in LICENSE
 */
 
@@ -150,7 +150,7 @@ var StringQuery = {
 
 						if(t.charAt(0) == '@'){
 							//Data is being sent to a predefined "mode" function
-							q.log(t+' is or @ prefixed, calling special method function matching that ID/name with the following data: "'+c[t]+'"');
+							q.log(t+' is or @ prefixed, calling special method function matching that ID/name with the following data: "'+i[t]+'"');
 							var n = t.replace('@','');
 							if(typeof q.methods[n] == 'function'){//Make sure the function exists
 								q.methods[n](i[t], t);
