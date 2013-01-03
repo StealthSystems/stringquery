@@ -291,7 +291,7 @@ This allows you to dynamically insert a form into the DOM, preprogrammed to trig
 Copyright & Credits
 -------------------
 
-Copyright © 2012 Doug Wollison & Richard Cornwell
+Copyright © 2012 Richard Cornwell & Doug Wollison
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
@@ -309,5 +309,5 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-Doug Wollison (Zumoro) <doug@wollison.net>  
-Richard Cornwell (RCP) <rcp@techtoknow.net>
+Richard Cornwell (RCP) <rcp@techtoknow.net>  
+Doug Wollison (Zumoro) <doug@wollison.net>
