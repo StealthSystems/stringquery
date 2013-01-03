@@ -1,7 +1,9 @@
 /*
-Built with StringQuery (https://github.com/dougwollison/marionette/)
+Built with StringQuery (https://github.com/dougwollison/StringQuery/)
 
-Copyright © 2012 Doug Wollison & Richard Cornwell
+Version 1.0.0; Released 21/12/2012
+
+Copyright © 2012 Richard Cornwell & Doug Wollison
 For conditions of distribution and use, see copyright notice in LICENSE
 */
 
