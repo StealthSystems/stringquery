@@ -250,8 +250,8 @@ You can also extend the StringQuery.function lists to add additional noArg, oneA
 	
 From the PHP side, you'd pass the instructions like so:
 
-	$SQ->updateProp(
-		'#myelement',
+    $SQ->updateProp(
+        '#myelement',
 		'myplugin',
 		array(
 			'arg1',
@@ -287,6 +287,16 @@ StringQuery.js includes a jQuery event handler for the submission of any form wi
 - The value of the data-action attribute (as a fallback; if present)
 
 This allows you to dynamically insert a form into the DOM, preprogrammed to trigger StringQuery.sendData() when they're submitted.
+
+#### Processing the Form Data
+
+When the form is submitted, it uses the jQuery.fn.serialize() function. This means that the data received by your processing function will be in a string format. Before you can do anything with it, you need to use parse_str().
+
+	function my_form_processor(&$SQ, $string){
+		parse_str($string, $data);
+		
+		//do stuff with $data array
+	}
 
 Copyright & Credits
 -------------------
