@@ -314,9 +314,9 @@ var StringQuery = {
 };
 
 //Setup StringQuery form functionality
-jQuery(document).ready(function(){
+jQuery(document).ready(function($){
 	//Form submit functionality
-	jQuery('body').on('submit', 'form.string-query', function(e){
+	$('body').on('submit', 'form.string-query', function(e){
 		e.preventDefault();
 		var action, data;
 		var input = $('input[name="string_query_action"]',this);
