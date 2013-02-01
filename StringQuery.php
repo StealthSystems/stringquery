@@ -145,6 +145,12 @@ class StringQuery
 
 			$data = null;
 			if(isset($_REQUEST['StringQuery']['data'])) $data = $_REQUEST['StringQuery']['data'];
+			
+			//Check if data was sent as a serialized string, then parse if so.
+			if(isset($data['__serialized'])){
+				$string = $data['__serialized'];
+				parse_str($string, $data);
+			}
 
 			if(isset($this->actions[$action])){
 				//An processor function for this action is set, call the function.
