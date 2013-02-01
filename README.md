@@ -279,22 +279,41 @@ This is the base interval between retries to send a request to the server. In us
 
 As the name suggests, you can set a default value for the data to be sent for a particular action. This is usefull primarily in the case of the 'ping' action, allowing you to change the data being sent without reinitiating the request cycle.
 
-### StringQuery forms
+### StringQuery forms, buttons and anchors
 
-StringQuery.js includes a jQuery event handler for the submission of any form with the class <code>.string-query</code>. It sends the serialized form values as the data argument, and uses one of 2 sources for the action argument:
+StringQuery.js includes a jQuery event handler chain, that handles forms, buttons, and anchors with the class <code>.stringquery</code>.
 
-- An input with the name string_query_action (if present), or
-- The value of the data-action attribute (as a fallback; if present)
+Forms will send the serialized form values (which, due to the way it's sent, will be parsed into a normal array on the server) as the data argument, and uses one of 2 sources for the action argument:
 
-This allows you to dynamically insert a form into the DOM, preprogrammed to trigger StringQuery.sendData() when they're submitted.
+- An input with the name "stringquery" (if present), or, as a fallback
+- The value of the data-action attribute (or, by extention it's jQuery.data('action') value)
+
+	<form class="stringquery">
+		<input type="hidden" name="stringquery" value="myaction">
+
+	<form data-action="myaction" class="stringquery">
+
+Buttons, when clicked, will send their name and value as the action and data arguments.
+
+	<button name="myaction" value="mydata" class="stringquery">
+
+Anchors, when clicked, with send their href and target as the action and data arguments.
+
+	<a href="#myaction" target="mydata" class="stringquery">
+
+Note: the href doesn't need the #, it will be stripped out if present.
+
+These handlers allow you to dynamically insert various elements into the DOM, which are then preprogrammed to trigger StringQuery.sendData(), without needing to write javascript for it.
 
 #### Processing the Form Data
 
-When the form is submitted, it uses the jQuery.fn.serialize() function. This means that the data received by your processing function will be in a string format. Before you can do anything with it, you need to use parse_str().
+When a stringquery form is submitted, the serialized data will be automatically parsed before being passed to the action handler. This is done by passing the data to the server like so:
 
-	function my_form_processor(&$SQ, $string){
-		parse_str($string, $data);
-		
+	{__serialized: data}
+
+So, when you write your action handler, it'll work just like a normal one:
+
+	function my_form_processor(&$SQ, $data){
 		//do stuff with $data array
 	}
 
