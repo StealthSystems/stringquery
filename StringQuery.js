@@ -313,23 +313,61 @@ var StringQuery = {
 	}
 };
 
-//Setup StringQuery form functionality
-jQuery(document).ready(function($){
+//Setup StringQuery form/button/link functionality
+jQuery(document).ready(function(){
+	jQuery('body')
 	//Form submit functionality
-	$('body').on('submit', 'form.string-query', function(e){
-		e.preventDefault();
+	//Ex: <form data-action="action" class="stringquery">
+	//Ex: <form class="stringquery">
+	//		<input type="hidden" name="stringquery">
+	.on('submit', 'form.stringquery', function(e){
+		e.preventDefault(); //stop form from submitting normally
+		
 		var action, data;
-		var input = $('input[name="string_query_action"]',this);
-		//Get action name from either input element or data attribute
+		
+		var input = $('input[name="stringquery"]', this);
+		
+		//Get the action name from either the input element or data attribute
 		if(input.length > 0){
 			action = input.val();
 		}else{
-			action = $(this).data('action');	
+			//no input element, assume data attribute
+			action = $(this).data('action');
 		}
+		
 		data = $(this).serialize();
 		
-		//If there's an action, trigger sendData()
-		if(action != '')
+		//Make sure there's an action, then run sendData()
+		if(action != ''){
+			//Pass data as an entry in an object with __serialized = data,
+			//so it knows to run the data through parse_str on the server.
+			StringQuery.sendData(action, {__serialized:data});
+		}
+	})
+	//Button click functionality
+	//Ex: <button name="action" value="data" class="stringquery">
+	.on('click', 'button.stringquery', function(e){
+		e.preventDefault(); //stop button from triggering anything normally
+		
+		var action = $(this).attr('name');
+		var data = $(this).val();
+		
+		//Make sure there's an action, then run sendData()
+		if(action != ''){
 			StringQuery.sendData(action, data);
+		}
+	})
+	//Link click functionality
+	//Ex: <a href="#action" target="data" class="stringquery">
+	.on('click', 'a.stringquery', function(e){
+		e.preventDefault(); //stop anchor from proceeding normally
+		
+		var action = $(this).attr('href').replace('#','');
+		var data = $(this).attr('target');
+		
+		//Make sure there's an action, then run sendData()
+		if(action != ''){
+			StringQuery.sendData(action, data);
+		}
 	});
 });
