@@ -135,10 +135,60 @@ Note: this works very similarly to update, however it will overwrite any preexis
             'innerHTML' => 'Hey, I changed!',
             'addClass' => 'changed'
         ),
-        '@alert' => 'Hi there?'
+        '@alert' => 'Hi there!'
     ));
 
 Once that's all done, StringQuery will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
+
+#### Method Overloading
+
+StringQuery.php also features method overloading; you can call a nonexistent method and it'll still work, and will proceed based on what you named the method. There are 3 naming schemes:
+
+##### update_PROPERTY($target, $value, $force = null) => updateProp($target, PROPERTY, $value, $force)
+
+Replace PROPERTY with the appropriate property name, an it will call updateProp() using that property name. Example:
+
+	$SQ->update_innerHTML('#mytarget', 'Hey, I changed!');
+
+Will become:
+
+	$SQ->updateProp('#mytarget', 'innerHTML', 'Hey, I changed!');
+
+##### bulkUpdate_PROPERTY($targets, $force = null) => bulkUpdate($targets, $force)
+
+Replace PROPERTY with the appropriate property name, and it will remap $targets accordingly and call bulkUpdate(), allowing you to update the same property across multiple targets. Example:
+
+	$SQ->bulkUpdate_innerHTML(array(
+		'#target1' => 'Hey, I changed!',
+		'#target2' => 'I changed too!',
+		'#target3' => 'Ditto!',
+	));
+
+Will become:
+
+	$SQ->bulkUpdate(array(
+		'#target1' => array(
+			'innerHTML' => 'Hey, I changed!'
+		),
+		'#target2' => array(
+			'innerHTML' => 'I changed too!'
+		),
+		'#target3' => array(
+			'innerHTML' => 'Ditto!'
+		),
+	));
+	
+##### FUNCTION($data, $force) => call(FUNCTION, $data, $force)
+
+Finally, if the name doesn't match the above schemes, it will assume you mean to call a StringQuery.method function on the javascript side. Example:
+
+	$SQ->alert('Hi there!');
+
+Will become:
+
+	$SQ->call('alert', 'Hi there!');
+
+Beats the hell out of repetetively writing these methods manually, eh?
 
 ### StringQuery::systemLoad()
 
