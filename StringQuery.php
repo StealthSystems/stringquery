@@ -272,6 +272,27 @@ class StringQuery
 		//Add it to the $data array
 		$this->data = array_merge_recursive($this->data, $targets);
 	}
+	
+	//Overloading function call method
+	//Accepts update_PROPERTY to directly update a property.
+	//Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
+	//Accepts FUNCTION to call a StringQuery.methods function
+	function __call($name, $arguments){
+		if(preg_match('/^update_(\w+)$/', $name, $matches)){
+			list($target, $value, $force) = $arguments;
+			$this->updateProp($target, $matches[0] $value, $force);
+		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
+			list($targets, $force) = $arguments;
+			$_targets = array();
+			foreach($targets as $target => $value){
+				$_targets[$target] = array($matches[0] => $value);
+			}
+			$this->bulkUpdate($_targets, $force);
+		}else{
+			list($data, $force) = $arguments;
+			$this->call($name, $data, $force);
+		}
+	}
 
 	// Helper Function: system load time
 	function sysLoadTime(){
