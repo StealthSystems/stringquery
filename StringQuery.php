@@ -280,7 +280,7 @@ class StringQuery
 	function __call($name, $arguments){
 		if(preg_match('/^update_(\w+)$/', $name, $matches)){
 			list($target, $value, $force) = $arguments;
-			$this->updateProp($target, $matches[0] $value, $force);
+			$this->updateProp($target, $matches[0], $value, $force);
 		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
 			list($targets, $force) = $arguments;
 			$_targets = array();
