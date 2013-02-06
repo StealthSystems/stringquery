@@ -2,7 +2,7 @@
 /*
 Built with StringQuery (https://github.com/dougwollison/StringQuery/)
 
-Version 1.1.0; Released 01/02/2013
+Version 1.1.1; Released 06/02/2013
 
 Copyright © 2012 Richard Cornwell & Doug Wollison
 For conditions of distribution and use, see copyright notice in LICENSE
@@ -145,9 +145,9 @@ class StringQuery
 
 			$data = null;
 			if(isset($_REQUEST['StringQuery']['data'])) $data = $_REQUEST['StringQuery']['data'];
-			
+
 			//Check if data was sent as a serialized string, then parse if so.
-			if(isset($data['__serialized'])){
+			if(is_array($data) && isset($data['__serialized'])){
 				$string = $data['__serialized'];
 				parse_str($string, $data);
 			}
@@ -272,7 +272,7 @@ class StringQuery
 		//Add it to the $data array
 		$this->data = array_merge_recursive($this->data, $targets);
 	}
-	
+
 	//Overloading function call method
 	//Accepts update_PROPERTY to directly update a property.
 	//Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
