@@ -273,23 +273,32 @@ class StringQuery
 		$this->data = array_merge_recursive($this->data, $targets);
 	}
 
+	//Extract an array of arguments into an indeterminant number of variables passed by reference.
+	private static function extract_args($args, &$a0 = null, &$a1 = null, &$a2 = null){
+		for($i = 0; $i < 3; $i++){
+			if(!isset($args[$i])) break;
+			$var = "a$i";
+			$$var = $args[$i];
+		}
+	}
+
 	//Overloading function call method
 	//Accepts update_PROPERTY to directly update a property.
 	//Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
 	//Accepts FUNCTION to call a StringQuery.methods function
 	function __call($name, $arguments){
 		if(preg_match('/^update_(\w+)$/', $name, $matches)){
-			list($target, $value, $force) = $arguments;
+			self::extract_args($arguments, $target, $value, $force);
 			$this->updateProp($target, $matches[0], $value, $force);
 		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
-			list($targets, $force) = $arguments;
+			self::extract_args($arguments, $data, $force);
 			$_targets = array();
 			foreach($targets as $target => $value){
 				$_targets[$target] = array($matches[0] => $value);
 			}
 			$this->bulkUpdate($_targets, $force);
 		}else{
-			list($data, $force) = $arguments;
+			self::extract_args($arguments, $data, $force);
 			$this->call($name, $data, $force);
 		}
 	}
