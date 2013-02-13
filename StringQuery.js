@@ -1,7 +1,7 @@
 /*
 Built with StringQuery (https://github.com/dougwollison/StringQuery/)
 
-Version 1.1.1; Released 06/02/2013
+Version 1.1.2; Released 12/02/2013
 
 Copyright © 2012 Richard Cornwell & Doug Wollison
 For conditions of distribution and use, see copyright notice in LICENSE
