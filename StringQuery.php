@@ -86,16 +86,16 @@ class StringQuery
 	public $forced = false; //Default force setting
 	public $verbose = false; //Default js verbose setting
 	public $min_update_interval = 0; //The minimum update interval, added to the actual upate_interval
-	public $actions = array(); //List of function calls for each action
+	private $actions = array(); //List of function calls for each action
 
-	public $data = array(); //For collecting multiple replies to send
-	public $force = array(); //For forcing changes on any targets logged here.
+	private $data = array(); //For collecting multiple replies to send
+	private $force = array(); //For forcing changes on any targets logged here.
 	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
 	public $session_lifetime = 60; //How many seconds a session can last without being touched before getting deleted
 	public $start; //The start time of when StringQuery was initialized
 	public $key; //The session entry key that holds relevant StringQuery data
 
-	function make_key(){
+	private function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
 		if(!empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null'){
 			$this->key = $_REQUEST['StringQuery']['k'];
@@ -113,7 +113,7 @@ class StringQuery
 		$_SESSION['StringQuery'][$this->key]['touched'] = time();
 	}
 
-	function clean_session(){
+	private function clean_session(){
 		//Run through all sessions and see if any are older than 60 seconds, delete if so
 		foreach($_SESSION['StringQuery'] as $key => $session){
 			if($key != $this->key && isset($session['touched']) && time() - $session['touched'] > $this->session_lifetime)
@@ -121,7 +121,7 @@ class StringQuery
 		}
 	}
 
-	function __construct($args){
+	public function __construct($args){
 		$this->start = microtime(true);
 
 		//Generate/Load session key and clean out the session
@@ -171,7 +171,7 @@ class StringQuery
 	}
 
 	// Primary Data Return; echos out the JSON data;
-	function reply($data = true){
+	private function reply($data = true){
 		$data = $data === true ? $this->data : $data;
 
 		//Load the relevant session changes data
@@ -208,7 +208,7 @@ class StringQuery
 	}
 
 	// Update a target with multiple properties
-	function update($target, $data, $force = null){
+	public function update($target, $data, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
@@ -226,12 +226,12 @@ class StringQuery
 	}
 
 	// Update a specific property
-	function updateProp($target, $prop, $value, $force = null){
+	public function updateProp($target, $prop, $value, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
-        if($force) //Add target to list of forced changes
-            $this->force[] = $target;
+		if($force) //Add target to list of forced changes
+			$this->force[] = $target;
 
 		//Add it to the $data array
 		if(isset($this->data[$target]) && is_array($this->data[$target])){
@@ -246,21 +246,21 @@ class StringQuery
 	}
 
 	// Call a StringQuery.parsers function
-	function call($func, $data, $force = null){
+	public function call($func, $data, $force = null){
 		$func = "@$func";
 
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
-        if($force) //Add target to list of forced changes
-            $this->force[] = $func;
+		if($force) //Add target to list of forced changes
+			$this->force[] = $func;
 
 		//Add it to the $data array
 		$this->data[$func] = $data;
 	}
 
 	// Update multiple targets in one go
-	function bulkUpdate(array $targets, $force = null){
+	public function bulkUpdate(array $targets, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
@@ -286,7 +286,7 @@ class StringQuery
 	//Accepts update_PROPERTY to directly update a property.
 	//Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
 	//Accepts FUNCTION to call a StringQuery.methods function
-	function __call($name, $arguments){
+	public function __call($name, $arguments){
 		if(preg_match('/^update_(\w+)$/', $name, $matches)){
 			self::extract_args($arguments, $target, $value, $force);
 			$this->updateProp($target, $matches[0], $value, $force);
@@ -304,7 +304,7 @@ class StringQuery
 	}
 
 	// Helper Function: system load time
-	function sysLoadTime(){
+	private function sysLoadTime(){
 		if(@file_exists('/proc/loadavg')){
 			$load = explode(' ', file_get_contents('/proc/loadavg'));
 			$load = (float) $load[0];
