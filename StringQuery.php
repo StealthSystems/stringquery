@@ -289,12 +289,12 @@ class StringQuery
 	public function __call($name, $arguments){
 		if(preg_match('/^update_(\w+)$/', $name, $matches)){
 			self::extract_args($arguments, $target, $value, $force);
-			$this->updateProp($target, $matches[0], $value, $force);
+			$this->updateProp($target, $matches[1], $value, $force);
 		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
 			self::extract_args($arguments, $data, $force);
 			$_targets = array();
 			foreach($targets as $target => $value){
-				$_targets[$target] = array($matches[0] => $value);
+				$_targets[$target] = array($matches[1] => $value);
 			}
 			$this->bulkUpdate($_targets, $force);
 		}else{
