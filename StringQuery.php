@@ -95,27 +95,52 @@ class StringQuery
 	public $start; //The start time of when StringQuery was initialized
 	public $key; //The session entry key that holds relevant StringQuery data
 
+	/**
+	 * Retrive a value from the current StringQuery session.
+	 * 
+	 * Passing nothing will retrieve the whole session array,
+	 * otherwise, pass a number of arguments to "drill" down into
+	 * the session array.
+	 * 
+	 * Example, to access $_SESSION['StringQuery'][$this->key]['changes']['#myelement']
+	 * You would call $this->get('changes', '#myelement')
+	 * 
+	 * @since 1.1.3
+	 * 
+	 * @return mixed $value The resulting value form the "drill".
+	 */
 	public function get(){
+		//If the session or even the key is not set, return null
 		if(is_null($this->key) || !isset($_SESSION['StringQuery'][$this->key])) return null;
 
+		//Get the list of keys to dig through
 		$vars = func_get_args();
 
+		//If no arguments are passed, return whole session array
 		if(count($vars) == 0){
 			return $_SESSION['StringQuery'][$this->key];
 		}else{
+			//If the session array isn't actually an array, return null
 			if(!is_array($_SESSION['StringQuery'][$this->key])){
 				return null;
 			}
-			$value = null;
-			$_var = array_shift($vars);
+			
+			//Prep variables
+			$value = null; //the value that will be returned
+			$_var = array_shift($vars); //the upper most key to access
 
+			//If the first key exists, load $value with that value
 			if(isset($_SESSION['StringQuery'][$this->key][$_var])){
 				$value = $_SESSION['StringQuery'][$this->key][$_var];
 			}
 
+			//Loop through the remaining keys (if present),
+			//and load $value wit it if present, otherwise break
 			while($_var = array_shift($vars)){
 				if(is_array($value) && isset($value[$_var])){
 					$value = $value[$_var];
+				}else{
+					break;
 				}
 			}
 
@@ -123,25 +148,55 @@ class StringQuery
 		}
 	}
 
+	/**
+	 * Set a value from the current StringQuery session.
+	 * 
+	 * Passing nothing will retrieve the whole session array,
+	 * otherwise, pass a number of arguments to drill down into
+	 * the session array.
+	 * 
+	 * Example, to set $_SESSION['StringQuery'][$this->key]['changes']['@log'] = 'Hello world!'
+	 * You would call $this->set('changes', '@log', 'Hello world!')
+	 * 
+	 * @since 1.1.3
+	 */
 	public function set(){
-		$vars = func_get_args();
-		$value = array_pop($vars);
+		//Get the list of keys passed
+		$keys = func_get_args();
+		$value = array_pop($keys); //The last one will be the value to be set
 
-		if(!$this->get())
+		//If the session isn't set, set it as an empty array
+		if(is_null($this->get()))
 			$_SESSION['StringQuery'][$this->key] = array();
 
+		//If only 1 or fewer arguments are passed, abort
 		if(func_num_args() <= 1) return;
-
+		
+		//Pass the session by reference to the $target alias
 		$target =& $_SESSION['StringQuery'][$this->key];
-		while(($_var = array_shift($vars)) !== null){
-			if(!isset($target[$_var]) || !is_array($target[$_var]))
-				$target[$_var] = array();
-
-			$target =& $target[$_var];
+		
+		//Loop through the $keys and reassign $target to the deeper value
+		while(($_key = array_shift($keys)) !== null){
+			//If the value isn't set or isn't an array, make it one
+			if(!isset($target[$_key]) || !is_array($target[$_key]))
+				$target[$_key] = array();
+			
+			//Update the $target alias to the deeper value
+			$target =& $target[$_key];
 		}
+		
+		//Finally, set the target with the desired value
 		$target = $value;
 	}
 
+	/**
+	 * Load or generate the key for the current session.
+	 * 
+	 * Also sets the birth time of the session,
+	 * and updates the touched timestamp.
+	 * 
+	 * @since 1.0
+	 */
 	private function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
 		if(!empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null'){
@@ -151,7 +206,7 @@ class StringQuery
 		}
 
 		//Check if StringQuery data is setup for this session, setup with birth time if not
-		if(!$this->get()){
+		if(!$this->get('birth')){
 			$this->set('birth', time());
 		}
 
@@ -159,8 +214,13 @@ class StringQuery
 		$this->set('touched', time());
 	}
 
+	/**
+	 * Run through all sessions and delete any that are haven't been touched
+	 * within the specified session lifetime
+	 * 
+	 * @since 1.0
+	 */
 	private function clean_session(){
-		//Run through all sessions and see if any are older than 60 seconds, delete if so
 		foreach($_SESSION['StringQuery'] as $key => $session){
 			if($key != $this->key && isset($session['touched']) && time() - intval($session['touched']) > $this->session_lifetime){
 				unset($_SESSION['StringQuery'][$key]);
@@ -168,7 +228,14 @@ class StringQuery
 		}
 	}
 
-	public function __construct($args){
+	/**
+	 * Constructor; setup object, key, change properties, etc.
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param array $args Optional An array of properties and their new values
+	 */
+	public function __construct($args = null){
 		$this->start = microtime(true);
 
 		//Generate/Load session key and clean out the session
@@ -217,7 +284,14 @@ class StringQuery
 		}
 	}
 
-	// Primary Data Return; echos out the JSON data;
+	/**
+	 * Print out the JSON form of the data to the browser
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param mixed $data Optional The changes data to pass,
+	 * if literally TRUE, uses StringQuery::$data
+	 */
 	private function reply($data = true){
 		$data = $data === true ? $this->data : $data;
 
@@ -255,7 +329,16 @@ class StringQuery
 		exit; //Adding anything after the JSON will break it.
 	}
 
-	// Update a target with multiple properties
+	/**
+	 * Update a single target with multiple properties
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param string $target The jQuery selector or @function name
+	 * @param mixed $data An array (usually) of data to assign to the target
+	 * @param bool $force Optional To force this change or not,
+	 * passing NULL will have it use StringQuery::$force
+	 */
 	public function update($target, $data, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
@@ -272,8 +355,18 @@ class StringQuery
 			$this->data[$target] = $data;
 		}
 	}
-
-	// Update a specific property
+	
+	/**
+	 * Update a specific property on a target
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param string $target The jQuery selector or @function name
+	 * @param string $prop The property to change
+	 * @param mixed $value The new value of the property
+	 * @param bool $force Optional To force this change or not,
+	 * passing NULL will have it use StringQuery::$force
+	 */
 	public function updateProp($target, $prop, $value, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
@@ -293,7 +386,16 @@ class StringQuery
 		}
 	}
 
-	// Call a StringQuery.parsers function
+	/**
+	 * Call a StringQuery.methods function
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param string $func The name of the function to call (no need to include @ prefix)
+	 * @param mixed $data The data to send to the function
+	 * @param bool $force Optional To force this change or not,
+	 * passing NULL will have it use StringQuery::$force
+	 */
 	public function call($func, $data, $force = null){
 		$func = "@$func";
 
@@ -307,8 +409,16 @@ class StringQuery
 		$this->data[$func] = $data;
 	}
 
-	// Update multiple targets in one go
-	public function bulkUpdate(array $targets, $force = null){
+	/**
+	 * Update numerous targets with numerour properties
+	 * 
+	 * @since 1.0
+	 * 
+	 * @param array $targets An array of targets and their properties => values
+	 * @param bool $force Optional To force this change or not,
+	 * passing NULL will have it use StringQuery::$force
+	 */
+	public function bulkUpdate($targets, $force = null){
 		if($force === null) //set $force to the default setting
 			$force = $this->forced;
 
@@ -321,37 +431,48 @@ class StringQuery
 		$this->data = array_merge_recursive($this->data, $targets);
 	}
 
-	//Extract an array of arguments into an indeterminant number of variables passed by reference.
-	private static function extract_args($args, &$a0 = null, &$a1 = null, &$a2 = null){
-		for($i = 0; $i < 3; $i++){
-			if(!isset($args[$i])) break;
-			$var = "a$i";
-			$$var = $args[$i];
-		}
-	}
-
-	//Overloading function call method
-	//Accepts update_PROPERTY to directly update a property.
-	//Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
-	//Accepts FUNCTION to call a StringQuery.methods function
+	/**
+	 * Overloading call method
+	 * 
+	 * Accepts update_PROPERTY to directly update a property.
+	 * Accepts bulkdUpdate_PROPERTY to bulk update a single property on multiple targets (target=>value style).
+	 * Accepts FUNCTION to call a StringQuery.methods function
+	 * 
+	 * @since 1.1.0
+	 * 
+	 * @param string $name The name of the method desired
+	 * @param array $arguments An array of arguments passed to the method
+	 */
 	public function __call($name, $arguments){
+		for($i = 0; $i < 10; $i++){
+			if(!isset($arguments[$i]))
+				$arguments[$i] = null;
+		}
+		
 		if(preg_match('/^update_(\w+)$/', $name, $matches)){
-			self::extract_args($arguments, $target, $value, $force);
+			list($target, $value, $force) = $arguments;
 			$this->updateProp($target, $matches[1], $value, $force);
 		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
-			self::extract_args($arguments, $data, $force);
+			list($data, $force) = $arguments;
 			$_targets = array();
 			foreach($targets as $target => $value){
 				$_targets[$target] = array($matches[1] => $value);
 			}
 			$this->bulkUpdate($_targets, $force);
 		}else{
-			self::extract_args($arguments, $data, $force);
+			list($data, $force) = $arguments;
 			$this->call($name, $data, $force);
 		}
 	}
 
-	// Helper Function: system load time
+	/**
+	 * Detect system load and adjust the update_interval property accordingly
+	 * 
+	 * NOTE: Strongly encouraged to replace this method with your own version;
+	 * this one was designed for a 4 core server
+	 * 
+	 * @since 1.0
+	 */
 	private function sysLoadTime(){
 		if(@file_exists('/proc/loadavg')){
 			$load = explode(' ', file_get_contents('/proc/loadavg'));
