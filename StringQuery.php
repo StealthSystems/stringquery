@@ -2,7 +2,7 @@
 /*
 Built with StringQuery (https://github.com/dougwollison/StringQuery/)
 
-Version 1.1.2; Released 12/02/2013
+Version 1.1.3; Released 18/03/2013
 
 Copyright © 2012 Richard Cornwell & Doug Wollison
 For conditions of distribution and use, see copyright notice in LICENSE
@@ -95,6 +95,53 @@ class StringQuery
 	public $start; //The start time of when StringQuery was initialized
 	public $key; //The session entry key that holds relevant StringQuery data
 
+	public function get(){
+		if(is_null($this->key) || !isset($_SESSION['StringQuery'][$this->key])) return null;
+
+		$vars = func_get_args();
+
+		if(count($vars) == 0){
+			return $_SESSION['StringQuery'][$this->key];
+		}else{
+			if(!is_array($_SESSION['StringQuery'][$this->key])){
+				return null;
+			}
+			$value = null;
+			$_var = array_shift($vars);
+
+			if(isset($_SESSION['StringQuery'][$this->key][$_var])){
+				$value = $_SESSION['StringQuery'][$this->key][$_var];
+			}
+
+			while($_var = array_shift($vars)){
+				if(is_array($value) && isset($value[$_var])){
+					$value = $value[$_var];
+				}
+			}
+
+			return $value;
+		}
+	}
+
+	public function set(){
+		$vars = func_get_args();
+		$value = array_pop($vars);
+
+		if(!$this->get())
+			$_SESSION['StringQuery'][$this->key] = array();
+
+		if(func_num_args() <= 1) return;
+
+		$target =& $_SESSION['StringQuery'][$this->key];
+		while(($_var = array_shift($vars)) !== null){
+			if(!isset($target[$_var]) || !is_array($target[$_var]))
+				$target[$_var] = array();
+
+			$target =& $target[$_var];
+		}
+		$target = $value;
+	}
+
 	private function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
 		if(!empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null'){
@@ -104,20 +151,20 @@ class StringQuery
 		}
 
 		//Check if StringQuery data is setup for this session, setup with birth time if not
-		if(!isset($_SESSION['StringQuery'][$this->key]) || !is_array($_SESSION['StringQuery'][$this->key]))
-			$_SESSION['StringQuery'][$this->key] = array(
-				'birth' => time()
-			);
+		if(!$this->get()){
+			$this->set('birth', time());
+		}
 
 		//Set/Update the touched timestamp on this session to renew it
-		$_SESSION['StringQuery'][$this->key]['touched'] = time();
+		$this->set('touched', time());
 	}
 
 	private function clean_session(){
 		//Run through all sessions and see if any are older than 60 seconds, delete if so
 		foreach($_SESSION['StringQuery'] as $key => $session){
-			if($key != $this->key && isset($session['touched']) && time() - $session['touched'] > $this->session_lifetime)
+			if($key != $this->key && isset($session['touched']) && time() - intval($session['touched']) > $this->session_lifetime){
 				unset($_SESSION['StringQuery'][$key]);
+			}
 		}
 	}
 
@@ -175,19 +222,19 @@ class StringQuery
 		$data = $data === true ? $this->data : $data;
 
 		//Load the relevant session changes data
-		$session = &$_SESSION['StringQuery'][$this->key]['changes'];
+		$changes = $this->get('changes');
 
 		//Run through the changes and compare to the $_SESSION copy
 		//to see if any of the changes are new compared to last request.
 		foreach($data as $target => $change){
-			if(	isset($session[$target]) &&
-				json_encode($session[$target]) === json_encode($change) &&
+			if(	isset($changes[$target]) &&
+				json_encode($changes[$target]) === json_encode($change) &&
 				!in_array($target, $this->force)){
 				//If the target is the same, AND there's no force change
 				//enabled for that target, unset it, lightening $data
 				unset($data[$target]);
 			}else{
-				$session[$target] = $change;
+				$this->set('changes', $target, $change);
 			}
 		}
 
@@ -201,7 +248,8 @@ class StringQuery
 			'u' => $this->update_interval + $this->min_update_interval,
 			'k' => $this->key,
 			't' => round(microtime(true) - $this->start, 4),
-			'v' => $this->verbose
+			'v' => $this->verbose,
+			's' => $this->get()
 		));
 
 		exit; //Adding anything after the JSON will break it.
