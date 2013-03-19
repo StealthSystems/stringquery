@@ -217,7 +217,7 @@ Which is the equivelent of:
 
 Simply pass the keys you wish to "drill" down through. Passing nothing will retrieve the whole array.
 
-#### StringQuery::set($keys... $value)
+#### StringQuery::set($keys..., $value)
 
 To set a specific value with the current session, you call the method like so:
 
