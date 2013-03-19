@@ -201,6 +201,34 @@ If neither method is available, StringQuery defaults to assume the server load i
 
 You are encouraged to write your own extension of StringQuery so that you can define your own version of systemLoad(), just make sure you set a value for the $update_interval variable; the function is not intended to return a value. The one currently in place is based on a 4 core server, which might not be at all like what you're implementing it on.
 
+### Accessing and Manipulating the $_SESSION entry
+
+This feature was largely written out of laziness; instead of writing `$_SESSION['StringQuery'][$this->key]` in order to get or set a specific value within the current session data, I added two methods for doing it with slightly less code. They're largely for internal use, but they're public in case you need to store your own special data to the current session.
+
+#### StringQuery::get($keys...)
+
+To retrieve a specific value within the current session, you call the method like so:
+
+	$SQ->get('changes', '#myelement');
+
+Which is the equivelent of:
+
+	$_SESSION['StringQuery'][$SQ->key]['changes']['#myelement']
+
+Simply pass the keys you wish to "drill" down through. Passing nothing will retrieve the whole array.
+
+#### StringQuery::set($keys... $value)
+
+To set a specific value with the current session, you call the method like so:
+
+	$SQ->set('changes', '@log', 'Hello world!');
+
+Which is the equivelent of:
+
+	$_SESSION['StringQuery'][$SQ->key]['changes']['@log'] = 'Hello world!';
+
+Simply pass the keys you wish to "drill" down through, followed at the end by the value you want to assing to it. You must pass at least 1 key before passing the value.
+
 ### Extending
 
 This is going to be brief, since honestly it's the same as extending any other PHP class; you can overwrite an existing function or add a new one that uses on the base ones, for instance:
