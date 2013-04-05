@@ -78,13 +78,13 @@ When constructed, StringQuery goes through the following steps:
 ### Writing Action Functions
 
 Action functions will be called with the following arguments (in order):
-- StringQuery &$SQ; The StringQuery object, passed by reference
+- StringQuery $SQ; The StringQuery object
 - mixed $data; The data attached to the action
 - string $action; the name of the action called (for functions that handle multiple actions)
 
 Here's what your action function would look like:
 
-    function my_ping_action(&$SQ, $data, $action){
+    function my_ping_action($SQ, $data, $action){
         //Do stuff with $data
     }
 
@@ -391,7 +391,7 @@ When a stringquery form is submitted, the serialized data will be automatically 
 
 So, when you write your action handler, it'll work just like a normal one:
 
-	function my_form_processor(&$SQ, $data){
+	function my_form_processor($SQ, $data){
 		//do stuff with $data array
 	}
 
