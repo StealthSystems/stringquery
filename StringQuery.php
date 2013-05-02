@@ -151,9 +151,9 @@ class StringQuery
 	/**
 	 * Set a value from the current StringQuery session.
 	 * 
-	 * Passing nothing will retrieve the whole session array,
-	 * otherwise, pass a number of arguments to drill down into
-	 * the session array.
+	 * Passing a single argument will ovwerrite the whole session array,
+	 * otherwise, pass a number of arguments to "drill" down into
+	 * the session array, with the last argument being the value to set.
 	 * 
 	 * Example, to set $_SESSION['StringQuery'][$this->key]['changes']['@log'] = 'Hello world!'
 	 * You would call $this->set('changes', '@log', 'Hello world!')
