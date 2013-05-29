@@ -453,7 +453,7 @@ class StringQuery
 			list($target, $value, $force) = $arguments;
 			$this->updateProp($target, $matches[1], $value, $force);
 		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
-			list($data, $force) = $arguments;
+			list($targets, $force) = $arguments;
 			$_targets = array();
 			foreach($targets as $target => $value){
 				$_targets[$target] = array($matches[1] => $value);
