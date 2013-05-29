@@ -2,7 +2,7 @@
 /*
 Built with StringQuery (https://github.com/dougwollison/StringQuery/)
 
-Version 1.1.3; Released 18/03/2013
+Version 1.1.4; Released 29/05/2013
 
 Copyright © 2012 Richard Cornwell & Doug Wollison
 For conditions of distribution and use, see copyright notice in LICENSE
@@ -444,7 +444,7 @@ class StringQuery
 	 * @param array $arguments An array of arguments passed to the method
 	 */
 	public function __call($name, $arguments){
-		for($i = 0; $i < 10; $i++){
+		for($i = 0; $i < 3; $i++){
 			if(!isset($arguments[$i]))
 				$arguments[$i] = null;
 		}
