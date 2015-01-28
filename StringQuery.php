@@ -77,23 +77,23 @@ For conditions of distribution and use, see copyright notice in LICENSE
  * StringQuery regularly clears out sessions that haven't been touched
  * for the last 60 seconds.
  */
-ini_set('session.use_cookies', 1);
-ini_set('session.use_only_cookies', 1);
+ini_set( 'session.use_cookies', 1 );
+ini_set( 'session.use_only_cookies', 1 );
 
 class StringQuery
 {
-	public $repeat = false; //specify that pings for this should be repeated
-	public $forced = false; //Default force setting
-	public $verbose = false; //Default js verbose setting
-	public $min_update_interval = 0; //The minimum update interval, added to the actual upate_interval
+	public  $repeat = false; //specify that pings for this should be repeated
+	public  $forced = false; //Default force setting
+	public  $verbose = false; //Default js verbose setting
+	public  $min_update_interval = 0; //The minimum update interval, added to the actual upate_interval
 	private $actions = array(); //List of function calls for each action
 
 	private $data = array(); //For collecting multiple replies to send
 	private $force = array(); //For forcing changes on any targets logged here.
-	public $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
-	public $session_lifetime = 60; //How many seconds a session can last without being touched before getting deleted
-	public $start; //The start time of when StringQuery was initialized
-	public $key; //The session entry key that holds relevant StringQuery data
+	public  $update_interval = 1000; //How long to wait before repeating if repeat is TRUE
+	public  $session_lifetime = 60; //How many seconds a session can last without being touched before getting deleted
+	public  $start; //The start time of when StringQuery was initialized
+	public  $key; //The session entry key that holds relevant StringQuery data
 
 	/**
 	 * Retrive a value from the current StringQuery session.
@@ -109,37 +109,39 @@ class StringQuery
 	 * 
 	 * @return mixed $value The resulting value form the "drill".
 	 */
-	public function get(){
+	public function get() {
 		//If the session or even the key is not set, return null
-		if(is_null($this->key) || !isset($_SESSION['StringQuery'][$this->key])) return null;
+		if( is_null( $this->key ) || ! isset( $_SESSION['StringQuery'][ $this->key ] ) ) {
+			return null;
+		}
 
 		//Get the list of keys to dig through
 		$vars = func_get_args();
 
 		//If no arguments are passed, return whole session array
-		if(count($vars) == 0){
-			return $_SESSION['StringQuery'][$this->key];
-		}else{
+		if ( count( $vars ) == 0 ) {
+			return $_SESSION['StringQuery'][ $this->key ];
+		} else {
 			//If the session array isn't actually an array, return null
-			if(!is_array($_SESSION['StringQuery'][$this->key])){
+			if ( ! is_array( $_SESSION['StringQuery'][ $this->key ] ) ) {
 				return null;
 			}
 			
 			//Prep variables
 			$value = null; //the value that will be returned
-			$_var = array_shift($vars); //the upper most key to access
+			$_var = array_shift( $vars ); //the upper most key to access
 
 			//If the first key exists, load $value with that value
-			if(isset($_SESSION['StringQuery'][$this->key][$_var])){
-				$value = $_SESSION['StringQuery'][$this->key][$_var];
+			if ( isset( $_SESSION['StringQuery'][ $this->key ][ $_var ] ) ) {
+				$value = $_SESSION['StringQuery'][ $this->key ][ $_var ];
 			}
 
 			//Loop through the remaining keys (if present),
 			//and load $value wit it if present, otherwise break
-			while($_var = array_shift($vars)){
-				if(is_array($value) && isset($value[$_var])){
-					$value = $value[$_var];
-				}else{
+			while ( $_var = array_shift( $vars ) ) {
+				if ( is_array( $value ) && isset( $value[ $_var ] ) ) {
+					$value = $value[ $_var ];
+				} else {
 					break;
 				}
 			}
@@ -160,29 +162,31 @@ class StringQuery
 	 * 
 	 * @since 1.1.3
 	 */
-	public function set(){
+	public function set() {
 		//Get the list of keys passed
 		$keys = func_get_args();
-		$value = array_pop($keys); //The last one will be the value to be set
+		$value = array_pop( $keys ); //The last one will be the value to be set
 
 		//If the session isn't set, set it as an empty array
-		if(is_null($this->get()))
-			$_SESSION['StringQuery'][$this->key] = array();
+		if ( is_null( $this->get() ) ) {
+			$_SESSION['StringQuery'][ $this->key ] = array();
+		}
 
 		//If only 1 or fewer arguments are passed, abort
-		if(func_num_args() <= 1) return;
+		if ( func_num_args() <= 1 ) return;
 		
 		//Pass the session by reference to the $target alias
-		$target =& $_SESSION['StringQuery'][$this->key];
+		$target =& $_SESSION['StringQuery'][ $this->key ];
 		
 		//Loop through the $keys and reassign $target to the deeper value
-		while(($_key = array_shift($keys)) !== null){
+		while ( ( $_key = array_shift( $keys ) ) !== null ) {
 			//If the value isn't set or isn't an array, make it one
-			if(!isset($target[$_key]) || !is_array($target[$_key]))
-				$target[$_key] = array();
+			if ( ! isset( $target[ $_key ] ) || !is_array( $target[ $_key ] ) ) {
+				$target[ $_key ] = array();
+			}
 			
 			//Update the $target alias to the deeper value
-			$target =& $target[$_key];
+			$target =& $target[ $_key ];
 		}
 		
 		//Finally, set the target with the desired value
@@ -199,19 +203,19 @@ class StringQuery
 	 */
 	private function make_key(){
 		//Set the key to either be the one passed in the AJAX call, or create one based on their IP and the microtime
-		if(!empty($_REQUEST['StringQuery']['k']) && $_REQUEST['StringQuery']['k'] != 'null'){
+		if ( ! empty( $_REQUEST['StringQuery']['k'] ) && $_REQUEST['StringQuery']['k'] != 'null' ) {
 			$this->key = $_REQUEST['StringQuery']['k'];
 		}else{
-			$this->key = md5($_SERVER['REMOTE_ADDR']).md5(microtime());
+			$this->key = md5( $_SERVER['REMOTE_ADDR'] ) . md5( microtime() );
 		}
 
 		//Check if StringQuery data is setup for this session, setup with birth time if not
-		if(!$this->get('birth')){
-			$this->set('birth', time());
+		if ( ! $this->get( 'birth' ) ) {
+			$this->set( 'birth', time() );
 		}
 
 		//Set/Update the touched timestamp on this session to renew it
-		$this->set('touched', time());
+		$this->set( 'touched', time() );
 	}
 
 	/**
@@ -220,10 +224,10 @@ class StringQuery
 	 * 
 	 * @since 1.0
 	 */
-	private function clean_session(){
-		foreach($_SESSION['StringQuery'] as $key => $session){
-			if($key != $this->key && isset($session['touched']) && time() - intval($session['touched']) > $this->session_lifetime){
-				unset($_SESSION['StringQuery'][$key]);
+	private function clean_session() {
+		foreach ( $_SESSION['StringQuery'] as $key => $session ) {
+			if ( $key != $this->key && isset( $session['touched'] ) && time() - intval( $session['touched'] ) > $this->session_lifetime ) {
+				unset( $_SESSION['StringQuery'][ $key ] );
 			}
 		}
 	}
@@ -235,8 +239,8 @@ class StringQuery
 	 * 
 	 * @param array $args Optional An array of properties and their new values
 	 */
-	public function __construct($args = null){
-		$this->start = microtime(true);
+	public function __construct( $args = null ) {
+		$this->start = microtime( true );
 
 		//Generate/Load session key and clean out the session
 		$this->make_key();
@@ -245,40 +249,40 @@ class StringQuery
 		//Check the system load and adjust the update interval accordingly
 		$this->sysLoadTime();
 
-		foreach($args as $arg => $value){
+		foreach ( $args as $arg => $value ) {
 			$this->$arg = $value;
 		}
 
 		//If StringQuery data is sent to the server, process it based on the action parameter
-		if(isset($_REQUEST['StringQuery'])){
-			header('HTTP/1.0 200 OK');
+		if ( isset( $_REQUEST['StringQuery'] ) ) {
+			header( 'HTTP/1.0 200 OK' );
 			//If no action is actually passed, send log to the browser
-			if(!isset($_REQUEST['StringQuery']['action'])) $this->call('log', "No action specified", true, false);
+			if ( ! isset( $_REQUEST['StringQuery']['action'] ) ) $this->call( 'log', "No action specified", true, false );
 
 			$action = $_REQUEST['StringQuery']['action'];
 
 			$data = null;
-			if(isset($_REQUEST['StringQuery']['data'])) $data = $_REQUEST['StringQuery']['data'];
+			if ( isset( $_REQUEST['StringQuery']['data'] ) ) $data = $_REQUEST['StringQuery']['data'];
 
 			//Check if data was sent as a serialized string, then parse if so.
-			if(is_array($data) && isset($data['__serialized'])){
+			if ( is_array( $data ) && isset( $data['__serialized'] ) ) {
 				$string = $data['__serialized'];
-				parse_str($string, $data);
+				parse_str( $string, $data );
 			}
 
-			if(isset($this->actions[$action])){
+			if ( isset($this->actions[ $action ] ) ) {
 				//An processor function for this action is set, call the function.
-				$func = $this->actions[$action];
-				$func($this, $data, $action);
+				$func = $this->actions[ $action ];
+				$func( $this, $data, $action );
 				//call_user_func($this->actions[$action], &$this, $data, $action);
-			}elseif(isset($this->actions['default'])){
+			} elseif ( isset( $this->actions['default'] ) ) {
 				//A defualt action process is set, call it.
 				$func = $this->actions['default'];
-				$func($this, $data, $action);
+				$func( $this, $data, $action );
 				//call_user_func($this->actions['default'], &$this, $data, $action);
-			}else{
+			} else {
 				//Dammit, nothing, send a log to the browser
-				$this->call('log', "Unrecognized action: $action, no default function set.", true);
+				$this->call( 'log', "Unrecognized action: $action, no default function set.", true );
 			}
 			$this->reply();
 		}
@@ -292,23 +296,23 @@ class StringQuery
 	 * @param mixed $data Optional The changes data to pass,
 	 * if literally TRUE, uses StringQuery::$data
 	 */
-	private function reply($data = true){
+	private function reply( $data = true ) {
 		$data = $data === true ? $this->data : $data;
 
 		//Load the relevant session changes data
-		$changes = $this->get('changes');
+		$changes = $this->get( 'changes' );
 
 		//Run through the changes and compare to the $_SESSION copy
 		//to see if any of the changes are new compared to last request.
-		foreach($data as $target => $change){
-			if(	isset($changes[$target]) &&
-				json_encode($changes[$target]) === json_encode($change) &&
-				!in_array($target, $this->force)){
+		foreach ( $data as $target => $change ) {
+			if ( isset( $changes[ $target ] ) &&
+				 json_encode( $changes[ $target ] ) === json_encode( $change ) &&
+				 !in_array( $target, $this->force ) ) {
 				//If the target is the same, AND there's no force change
 				//enabled for that target, unset it, lightening $data
-				unset($data[$target]);
-			}else{
-				$this->set('changes', $target, $change);
+				unset( $data[$target] );
+			} else {
+				$this->set( 'changes', $target, $change );
 			}
 		}
 
@@ -316,15 +320,15 @@ class StringQuery
 		$this->sysLoadTime();
 
 		//Print out the JSON data
-		echo json_encode(array(
+		echo json_encode( array(
 			'i' => $data,
 			'r' => $this->repeat,
 			'u' => $this->update_interval + $this->min_update_interval,
 			'k' => $this->key,
-			't' => round(microtime(true) - $this->start, 4),
+			't' => round( microtime( true ) - $this->start, 4 ),
 			'v' => $this->verbose,
 			's' => $this->get()
-		));
+		) );
 
 		exit; //Adding anything after the JSON will break it.
 	}
@@ -339,20 +343,24 @@ class StringQuery
 	 * @param bool $force Optional To force this change or not,
 	 * passing NULL will have it use StringQuery::$force
 	 */
-	public function update($target, $data, $force = null){
-		if($force === null) //set $force to the default setting
+	public function update( $target, $data, $force = null ) {
+		if ( $force === null ) {
+			//set $force to the default setting
 			$force = $this->forced;
+		}
 
-		if($force) //Add target to list of forced changes
+		if ( $force ) {
+			//Add target to list of forced changes
 			$this->force[] = $target;
+		}
 
 		//Add it to the $data array
-		if(isset($this->data[$target]) && is_array($this->data[$target])){
+		if ( isset( $this->data[ $target ] ) && is_array( $this->data[ $target ] ) ) {
 			//changes for this target exist, add/ovewrite properties
-			$this->data[$target] = array_merge($this->data[$target], $data);
-		}else{
+			$this->data[ $target ] = array_merge( $this->data[ $target ], $data );
+		} else {
 			//create new $data entry for this target
-			$this->data[$target] = $data;
+			$this->data[ $target ] = $data;
 		}
 	}
 	
@@ -367,20 +375,24 @@ class StringQuery
 	 * @param bool $force Optional To force this change or not,
 	 * passing NULL will have it use StringQuery::$force
 	 */
-	public function updateProp($target, $prop, $value, $force = null){
-		if($force === null) //set $force to the default setting
+	public function updateProp( $target, $prop, $value, $force = null ) {
+		if ( $force === null ) {
+			//set $force to the default setting
 			$force = $this->forced;
+		}
 
-		if($force) //Add target to list of forced changes
+		if ( $force ) {
+			//Add target to list of forced changes
 			$this->force[] = $target;
+		}
 
 		//Add it to the $data array
-		if(isset($this->data[$target]) && is_array($this->data[$target])){
+		if ( isset( $this->data[ $target ] ) && is_array( $this->data[ $target ] ) ) {
 			//changes for this target exist, add/ovewrite property
-			$this->data[$target][$prop] = $value;
-		}else{
+			$this->data[ $target ][ $prop ] = $value;
+		} else {
 			//create new $data entry for this target
-			$this->data[$target] = array(
+			$this->data[ $target ] = array(
 				$prop => $value
 			);
 		}
@@ -396,17 +408,21 @@ class StringQuery
 	 * @param bool $force Optional To force this change or not,
 	 * passing NULL will have it use StringQuery::$force
 	 */
-	public function call($func, $data, $force = null){
+	public function call( $func, $data, $force = null ) {
 		$func = "@$func";
 
-		if($force === null) //set $force to the default setting
+		if ( $force === null ) {
+			//set $force to the default setting
 			$force = $this->forced;
+		}
 
-		if($force) //Add target to list of forced changes
+		if ( $force ) {
+			//Add target to list of forced changes
 			$this->force[] = $func;
+		}
 
 		//Add it to the $data array
-		$this->data[$func] = $data;
+		$this->data[ $func ] = $data;
 	}
 
 	/**
@@ -418,17 +434,21 @@ class StringQuery
 	 * @param bool $force Optional To force this change or not,
 	 * passing NULL will have it use StringQuery::$force
 	 */
-	public function bulkUpdate($targets, $force = null){
-		if($force === null) //set $force to the default setting
+	public function bulkUpdate( $targets, $force = null ) {
+		if ( $force === null ) {
+			//set $force to the default setting
 			$force = $this->forced;
+		}
 
-		if($force) //Add targets to list of forced changes
-			foreach($targets as $target => $data){
+		if ( $force ) {
+			//Add targets to list of forced changes
+			foreach( $targets as $target => $data ) {
 				$this->force[] = $target;
 			}
+		}
 
 		//Add it to the $data array
-		$this->data = array_merge_recursive($this->data, $targets);
+		$this->data = array_merge_recursive( $this->data, $targets );
 	}
 
 	/**
@@ -443,25 +463,25 @@ class StringQuery
 	 * @param string $name The name of the method desired
 	 * @param array $arguments An array of arguments passed to the method
 	 */
-	public function __call($name, $arguments){
-		for($i = 0; $i < 3; $i++){
-			if(!isset($arguments[$i]))
-				$arguments[$i] = null;
+	public function __call( $name, $arguments ) {
+		for ( $i = 0; $i < 3; $i++ ) {
+			if ( ! isset( $arguments[ $i ] ) )
+				$arguments[ $i ] = null;
 		}
 		
-		if(preg_match('/^update_(\w+)$/', $name, $matches)){
-			list($target, $value, $force) = $arguments;
-			$this->updateProp($target, $matches[1], $value, $force);
-		}elseif(preg_match('/^bulkUpdate_(\w+)$/', $name, $matches)){
-			list($targets, $force) = $arguments;
+		if ( preg_match( '/^update_(\w+)$/', $name, $matches ) ) {
+			list( $target, $value, $force ) = $arguments;
+			$this->updateProp( $target, $matches[1], $value, $force );
+		} elseif ( preg_match( '/^bulkUpdate_(\w+)$/', $name, $matches ) ) {
+			list( $targets, $force ) = $arguments;
 			$_targets = array();
-			foreach($targets as $target => $value){
-				$_targets[$target] = array($matches[1] => $value);
+			foreach ( $targets as $target => $value ) {
+				$_targets[ $target ] = array( $matches[1] => $value );
 			}
-			$this->bulkUpdate($_targets, $force);
-		}else{
-			list($data, $force) = $arguments;
-			$this->call($name, $data, $force);
+			$this->bulkUpdate( $_targets, $force );
+		} else {
+			list( $data, $force ) = $arguments;
+			$this->call( $name, $data, $force );
 		}
 	}
 
@@ -474,40 +494,41 @@ class StringQuery
 	 * @since 1.0
 	 */
 	private function sysLoadTime(){
-		if(@file_exists('/proc/loadavg')){
-			$load = explode(' ', file_get_contents('/proc/loadavg'));
+		if ( @file_exists( '/proc/loadavg' ) ) {
+			$load = explode( ' ', file_get_contents( '/proc/loadavg' ) );
 			$load = (float) $load[0];
-		}elseif(function_exists('shell_exec')){
-			$load = explode(' ', `uptime`);
+		} elseif ( function_exists( 'shell_exec' ) ) {
+			$load = explode( ' ', `uptime` );
 			$load = (float) $load[0];
-		}else{
+		} else {
 			$load = 1;
 		}
 
-		if($load <= 1)
-			$u = mt_rand(1000, 2000);
-		elseif($load <= 1.5)
-			$u = mt_rand(1000, 2000);
-		elseif($load <= 2.5)
-			$u = mt_rand(1500, 2500);
-		elseif($load <= 3)
-			$u = mt_rand(2000, 3000);
-		elseif($load <= 3.25)
-			$u = mt_rand(2500, 3500);
-		elseif($load <= 3.45)
-			$u = mt_rand(3500, 4500);
-		elseif($load <= 3.55)
-			$u = mt_rand(4500, 5500);
-		elseif($load <= 3.65)
-			$u = mt_rand(5500, 6500);
-		elseif($load <= 3.75)
-			$u = mt_rand(6500, 7500);
-		elseif($load <= 3.85)
-			$u = mt_rand(7500, 8500);
-		elseif($load <= 3.95)
-			$u = mt_rand(9000, 11000);
-		else
-			$u = mt_rand(19000, 21000);
+		if ( $load <= 1 ) {
+			$u = mt_rand(1000, 2000 );
+		} elseif( $load <= 1.5 ) {
+			$u = mt_rand( 1000, 2000 );
+		} elseif ( $load <= 2.5 ) {
+			$u = mt_rand( 1500, 2500 );
+		} elseif ( $load <= 3 ) {
+			$u = mt_rand( 2000, 3000 );
+		} elseif ( $load <= 3.25 ) {
+			$u = mt_rand( 2500, 3500 );
+		} elseif ( $load <= 3.45 ) {
+			$u = mt_rand( 3500, 4500 );
+		} elseif ( $load <= 3.55 ) {
+			$u = mt_rand( 4500, 5500 );
+		} elseif ( $load <= 3.65 ) {
+			$u = mt_rand( 5500, 6500 );
+		} elseif ( $load <= 3.75 ) {
+			$u = mt_rand( 6500, 7500 );
+		} elseif ( $load <= 3.85 ) {
+			$u = mt_rand( 7500, 8500 );
+		} elseif ( $load <= 3.95 ) {
+			$u = mt_rand( 9000, 11000 );
+		} else {
+			$u = mt_rand( 19000, 21000 );
+		}
 
 		$this->update_interval = $u;
 	}
