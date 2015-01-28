@@ -35,15 +35,15 @@ The PHP class creates and tracks StringQuery sessions (these are tied to the pag
 
 ### Creating and instance of StringQuery
 
-    include('StringQuery.php');
+    include( 'StringQuery.php' );
 	
-    $SQ = new StringQuery(array(
+    $SQ = new StringQuery( array(
         'repeat' => false,
         'actions' => array(
             'ping' => 'my_ping_function',
             'dostuff' => 'my_dostuff_function',
         )
-    ));
+    ) );
 
 Just pass an array of configurations, including an array of actions in action => function format
 
@@ -84,7 +84,7 @@ Action functions will be called with the following arguments (in order):
 
 Here's what your action function would look like:
 
-    function my_ping_action($SQ, $data, $action){
+    function my_ping_action( $SQ, $data, $action ) {
         //Do stuff with $data
     }
 
@@ -110,7 +110,7 @@ Here are the 4 built in methods:
         '#mytarget',
         array(
             'innerHTML' => 'Hey, I changed!',
-            'addClass' => 'changed'
+            'addClass'  => 'changed'
         )
     );
 
@@ -130,13 +130,13 @@ Note: this works very similarly to update, however it will overwrite any preexis
 
 #### bulkUpdate(array $targets, $force = null)
 
-    $SQ->bulkUpdate(array(
+    $SQ->bulkUpdate( array(
         '#mytarget' => array(
             'innerHTML' => 'Hey, I changed!',
-            'addClass' => 'changed'
+            'addClass'  => 'changed'
         ),
         '@alert' => 'Hi there!'
-    ));
+    ) );
 
 Once that's all done, StringQuery will then build the response and send echo the JSON object, and finally exit so nothing else gets added after it.
 
@@ -148,25 +148,25 @@ StringQuery.php also features method overloading; you can call a nonexistent met
 
 Replace PROPERTY with the appropriate property name, an it will call updateProp() using that property name. Example:
 
-	$SQ->update_innerHTML('#mytarget', 'Hey, I changed!');
+	$SQ->update_innerHTML( '#mytarget', 'Hey, I changed!' );
 
 Will become:
 
-	$SQ->updateProp('#mytarget', 'innerHTML', 'Hey, I changed!');
+	$SQ->updateProp( '#mytarget', 'innerHTML', 'Hey, I changed!' );
 
 ##### bulkUpdate_PROPERTY($targets, $force = null) => bulkUpdate($targets, $force)
 
 Replace PROPERTY with the appropriate property name, and it will remap $targets accordingly and call bulkUpdate(), allowing you to update the same property across multiple targets. Example:
 
-	$SQ->bulkUpdate_innerHTML(array(
+	$SQ->bulkUpdate_innerHTML( array(
 		'#target1' => 'Hey, I changed!',
 		'#target2' => 'I changed too!',
 		'#target3' => 'Ditto!',
-	));
+	) );
 
 Will become:
 
-	$SQ->bulkUpdate(array(
+	$SQ->bulkUpdate( array(
 		'#target1' => array(
 			'innerHTML' => 'Hey, I changed!'
 		),
@@ -176,17 +176,17 @@ Will become:
 		'#target3' => array(
 			'innerHTML' => 'Ditto!'
 		),
-	));
+	) );
 	
 ##### FUNCTION($data, $force) => call(FUNCTION, $data, $force)
 
 Finally, if the name doesn't match the above schemes, it will assume you mean to call a StringQuery.method function on the javascript side. Example:
 
-	$SQ->alert('Hi there!');
+	$SQ->alert( 'Hi there!' );
 
 Will become:
 
-	$SQ->call('alert', 'Hi there!');
+	$SQ->call( 'alert', 'Hi there!' );
 
 Beats the hell out of repetetively writing these methods manually, eh?
 
@@ -209,11 +209,11 @@ This feature was largely written out of laziness; instead of writing `$_SESSION[
 
 To retrieve a specific value within the current session, you call the method like so:
 
-	$SQ->get('changes', '#myelement');
+	$SQ->get( 'changes', '#myelement' );
 
 Which is the equivelent of:
 
-	$_SESSION['StringQuery'][$SQ->key]['changes']['#myelement']
+	$_SESSION['StringQuery'][ $SQ->key ]['changes']['#myelement']
 
 Simply pass the keys you wish to "drill" down through. Passing nothing will retrieve the whole array.
 
@@ -221,11 +221,11 @@ Simply pass the keys you wish to "drill" down through. Passing nothing will retr
 
 To set a specific value with the current session, you call the method like so:
 
-	$SQ->set('changes', '@log', 'Hello world!');
+	$SQ->set( 'changes', '@log', 'Hello world!' );
 
 Which is the equivelent of:
 
-	$_SESSION['StringQuery'][$SQ->key]['changes']['@log'] = 'Hello world!';
+	$_SESSION['StringQuery'][ $SQ->key ]['changes']['@log'] = 'Hello world!';
 
 Simply pass the keys you wish to "drill" down through, followed at the end by the value you want to assing to it. You must pass at least 1 key before passing the value.
 
@@ -233,8 +233,8 @@ Simply pass the keys you wish to "drill" down through, followed at the end by th
 
 This is going to be brief, since honestly it's the same as extending any other PHP class; you can overwrite an existing function or add a new one that uses on the base ones, for instance:
 
-    function changeTitle($text, $force = null){
-        $this->updateProp('title', 'innerHTML', $text, $force);
+    function changeTitle( $text, $force = null ) {
+        $this->updateProp( 'title', 'innerHTML', $text, $force );
     }
 
 It's advised you use one of the builtin methods as an inbetween, since it's less likely to break if the actual system is reworked.
@@ -244,7 +244,7 @@ StringQuery.js
 
 The JavaScript object sends action/data information to the server, and processes the instructions. All that's needed for basic setup is to call this function:
 
-    StringQuery.init('/ajax.php');
+    StringQuery.init( '/ajax.php' );
 
 This will set the StringQuery.script variable (the URL of the script to send all data to), and send the action 'ping' to the server, as well as any data you decide to pass in the second argument.
 
@@ -252,14 +252,14 @@ This will set the StringQuery.script variable (the URL of the script to send all
 
 To send an action name and associated data to the server, and process the resulting instructions, simply call the sendData function:
 
-    StringQuery.sendData('dostuff', 'with this');
+    StringQuery.sendData( 'dostuff', 'with this' );
 
 StringQuery will build the request to make to the server:
 
     request = {
         action: 'dostuff',
-        k: '9bf544bd1b7704bdefc7be441d9a21585848a32707deee946010f2ee7b776eea',
-        data: 'with this'
+        k:      '9bf544bd1b7704bdefc7be441d9a21585848a32707deee946010f2ee7b776eea',
+        data:   'with this'
     }
     
 Note: k is the StringQuery session key, the MD5 of the clients IP address and the unix timestamp concated together. This is used to log previously sent instructions, to prevent bloating of the returned JSON.
@@ -312,30 +312,30 @@ This function, which takes the propery, value, and element, proceeds to make the
 
 You can add your own special method functions to the StringQuery object like so:
 
-    StringQuery.methods.mymethod = function(data){
+    StringQuery.methods.mymethod = function( data ) {
         //do stuff
     }
 
 And then all you need to do to call it from the server is to use the StringQuery::call method:
 
-    $SQ->call('mymethod', 'my data');
+    $SQ->call( 'mymethod', 'my data' );
     
 Note: if you call this through StringQuery::update or StringQuery::bulkUpdate, make sure to prefix the method name with an @, so that the JavaScript object can tell it's a method and not some kind of jQuery selector.
 
 You can also extend the StringQuery.function lists to add additional noArg, oneArg and multiArg jQuery functions, such as plugins.
 
-	StringQuery.functions.multiArg.push('myplugin');
+	StringQuery.functions.multiArg.push( 'myplugin' );
 	
 From the PHP side, you'd pass the instructions like so:
 
     $SQ->updateProp(
-        '#myelement',
-		'myplugin',
-		array(
-			'arg1',
-			'arg2'
-		)
-	);
+	'#myelement',
+	'myplugin',
+	array(
+		'arg1',
+		'arg2'
+	)
+    );
 	
 Note: when calling a noArg function, you should pass it as simply <code>'myplugin' => null</code>, since the value is ignored.
 
@@ -387,11 +387,11 @@ These handlers allow you to dynamically insert various elements into the DOM, wh
 
 When a stringquery form is submitted, the serialized data will be automatically parsed before being passed to the action handler. This is done by passing the data to the server like so:
 
-	{__serialized: data}
+	{ __serialized: data }
 
 So, when you write your action handler, it'll work just like a normal one:
 
-	function my_form_processor($SQ, $data){
+	function my_form_processor( $SQ, $data ) {
 		//do stuff with $data array
 	}
 
@@ -416,5 +416,5 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-Richard Cornwell (RCP) <rcp@techtoknow.net>  
-Doug Wollison (Zumoro) <doug@wollison.net>
+Richard Cornwell <rcp@techtoknow.net>  
+Doug Wollison <doug@wollison.net>
